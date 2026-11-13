@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: bmb-tech-hosting
+    runtime: node
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      # Add every variable from .env in the Render dashboard (or use an env group).
