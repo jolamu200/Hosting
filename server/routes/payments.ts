@@ -22,9 +22,12 @@ import {
 } from "../services/paystack.js";
 import {
   isTanzaniaAvailable,
-  initiateSpeedPesaPayment,
-  getSpeedPesaPaymentStatus,
-} from "../services/speedpesa.js";
+  initiateAblinerPayment,
+  getAblinerPaymentStatus,
+  verifyAblinerWebhook,
+} from "../services/abliner.js";
+import { BoostOrder } from "../models/BoostOrder.js";
+import { fulfillPaidBoostOrder } from "../services/boostFulfillment.js";
 import { notifyOwner } from "../services/notify.js";
 import { createNotification } from "../services/notifications.js";
 
@@ -488,7 +491,7 @@ router.post("/initiate-tanzania", authGuard, banCheck, paymentRateLimit, async (
     const totalTx = txAmount + bonusTx;
     const user = await User.findById(req.user!._id);
     if (!user) { res.status(404).json({ error: "User not found" }); return; }
-    const result = await initiateSpeedPesaPayment({ phonenumber: phone, amount: tzsAmount });
+    const result = await initiateAblinerPayment({ phone, amount: tzsAmount });
     if (!result.success || !result.reference) {
       res.status(500).json({ error: result.message || "Failed to initiate payment" });
       return;
@@ -511,7 +514,7 @@ router.post("/initiate-tanzania", authGuard, banCheck, paymentRateLimit, async (
 router.get("/tanzania-status/:reference", authGuard, banCheck, async (req: AuthRequest, res) => {
   try {
     const reference = getParam(req.params.reference);
-    const result = await getSpeedPesaPaymentStatus(reference);
+    const result = await getAblinerPaymentStatus(reference);
     if (!result.success) { res.json({ status: "pending" }); return; }
     if (result.status === "SUCCESS") {
       const tx = await Transaction.findOne({ paystackRef: reference, userId: req.user!._id });
@@ -566,35 +569,46 @@ router.post("/notify-paypal-proof", authGuard, banCheck, async (req: AuthRequest
   }
 });
 
-export async function speedpesaWebhookHandler(req: Request, res: Response): Promise<void> {
+export async function ablinerWebhookHandler(req: Request, res: Response): Promise<void> {
   try {
-    const secret = (process.env.SPEEDPESA_WEBHOOK_SECRET || "").trim();
-    if (secret) {
-      const sig = String(req.headers["x-speedpesa-signature"] || req.headers["x-webhook-secret"] || "");
-      if (sig !== secret) { res.status(403).json({ error: "Forbidden" }); return; }
-    }
-    const body = (req.body || {}) as Record<string, unknown>;
-    const reference = String(body.reference || body.our_reference || "");
-    const status = String(body.status || "").toLowerCase();
-    const isPayin = !body.event || body.event === "PAYIN";
-    if (!reference || !isPayin) { res.json({ received: true }); return; }
+    const raw = (req as Request & { rawBody?: Buffer }).rawBody;
+    if (!verifyAblinerWebhook(raw, req.headers as Record<string, unknown>)) { res.status(401).json({ error: "Invalid signature" }); return; }
 
-    const tx = await Transaction.findOne({ paystackRef: reference, paystackCountry: "tanzania" });
-    if (!tx || tx.status !== "pending") { res.json({ received: true }); return; }
+    const body = (req.body || {}) as { event?: string; data?: { reference?: string; customer_reference?: string; status?: string; type?: string } };
+    const event = String(body.event || "");
+    const d = body.data || {};
+    const refs = [d.customer_reference, d.reference].filter((r): r is string => !!r);
+    if (!refs.length || !["transaction.completed", "transaction.failed"].includes(event) || (d.type && d.type !== "deposit")) { res.json({ received: true }); return; }
+    const completed = event === "transaction.completed";
 
-    if (["success", "completed", "paid"].includes(status)) {
-      tx.status = "success";
-      await tx.save();
-      const user = await User.findById(tx.userId);
-      if (user) {
-        user.txCoins += tx.txAmount;
-        await user.save();
-        notifyOwner(`💰 *Tanzania Payment Confirmed (Webhook)*\n\nUser: \`${user.email}\`\nAmount: ${tx.txAmount} TX (TZS ${tx.ksAmount})\nRef: \`${reference}\``).catch(() => {});
-        createNotification(user._id, "topup", "Top up successful", `You topped up ${tx.txAmount} TX (TZS ${tx.ksAmount}).`).catch(() => {});
+    // 1) TX top-up
+    const tx = await Transaction.findOne({ paystackRef: { $in: refs }, paystackCountry: "tanzania" });
+    if (tx) {
+      if (tx.status === "pending") {
+        if (completed) {
+          tx.status = "success";
+          await tx.save();
+          const user = await User.findById(tx.userId);
+          if (user) {
+            user.txCoins += tx.txAmount;
+            await user.save();
+            notifyOwner(`💰 *Tanzania Payment Confirmed (Webhook)*\n\nUser: \`${user.email}\`\nAmount: ${tx.txAmount} TX (TZS ${tx.ksAmount})\nRef: \`${tx.paystackRef}\``).catch(() => {});
+            createNotification(user._id, "topup", "Top up successful", `You topped up ${tx.txAmount} TX (TZS ${tx.ksAmount}).`).catch(() => {});
+          }
+        } else {
+          tx.status = "failed";
+          await tx.save();
+        }
       }
-    } else if (["failed", "cancelled", "canceled", "rejected", "expired"].includes(status)) {
-      tx.status = "failed";
-      await tx.save();
+      res.json({ received: true });
+      return;
+    }
+
+    // 2) Social-boost order paid with Tanzania mobile money
+    const order = await BoostOrder.findOne({ paymentRef: { $in: refs }, paymentGateway: "tanzania" });
+    if (order && order.status === "awaiting_payment") {
+      if (completed) await fulfillPaidBoostOrder(String(order._id));
+      else { order.status = "failed"; await order.save(); }
     }
     res.json({ received: true });
   } catch {
