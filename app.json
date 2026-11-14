@@ -112,13 +112,17 @@
       "description": "Ghana Paystack secret API key (sk_live_...). Leave empty to disable Ghana payments.",
       "required": false
     },
-    "SPEEDPESA_API_KEY": {
-      "description": "SpeedPesa API key for Tanzania payments (x-api-key header). Set webhook URL to https://hosting.toxicx.tech/webhook/speedpesa in SpeedPesa dashboard.",
-      "required": false
-    },
     "ADMIN_EMAIL": {
       "description": "E-mail of the super admin account",
       "required": true
+    },
+    "ABLINER_API_KEY": {
+      "description": "Abliner API key (tsl_live_...) for Tanzania mobile money payments. Leave empty to disable Tanzania payments.",
+      "required": false
+    },
+    "ABLINER_WEBHOOK_SECRET": {
+      "description": "Abliner webhook signing secret (whsec_...). Required to confirm payments. Webhook URL: https://YOUR-DOMAIN/webhook/abliner",
+      "required": false
     }
   }
 }
