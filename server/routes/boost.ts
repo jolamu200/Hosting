@@ -14,7 +14,7 @@ import { normalizeBoostStatus, countsAsCompleted } from "../utils/boostStatus.js
 import { convertFromKes, isValidCurrency } from "../utils/currency.js";
 import { sellPriceKesPer1000 } from "../utils/boostPricing.js";
 import { chargeMobileMoney, getChargeStatus, normalizePhone, initializeTransaction, verifyTransaction } from "../services/paystack.js";
-import { isTanzaniaAvailable, initiateSpeedPesaPayment, getSpeedPesaPaymentStatus } from "../services/speedpesa.js";
+import { isTanzaniaAvailable, initiateAblinerPayment, getAblinerPaymentStatus } from "../services/abliner.js";
 import { fulfillPaidBoostOrder } from "../services/boostFulfillment.js";
 import { notifyOwner } from "../services/notify.js";
 
@@ -298,7 +298,7 @@ router.post("/order/pay/tanzania", sessionOrApiKeyGuard, banCheck, paymentRateLi
     const order = await loadAwaitingOrder(String(req.user!._id), boostOrderId);
     if (!order) { res.status(404).json({ error: "Order not found or already paid" }); return; }
 
-    const result = await initiateSpeedPesaPayment({ phonenumber: phone, amount });
+    const result = await initiateAblinerPayment({ phone, amount });
     if (!result.success || !result.reference) {
       res.status(500).json({ error: result.message || "Failed to initiate payment" });
       return;
@@ -321,7 +321,7 @@ router.get("/order/pay/tanzania/status/:reference", sessionOrApiKeyGuard, banChe
     if (!order) { res.status(404).json({ error: "Order not found" }); return; }
     if (order.status !== "awaiting_payment") { res.json({ status: order.status }); return; }
 
-    const result = await getSpeedPesaPaymentStatus(reference);
+    const result = await getAblinerPaymentStatus(reference);
     if (!result.success) { res.json({ status: "awaiting_payment" }); return; }
     if (result.status === "SUCCESS") {
       await fulfillPaidBoostOrder(String(order._id));
