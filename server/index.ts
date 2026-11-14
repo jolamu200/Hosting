@@ -7,7 +7,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import authRouter from "./routes/auth.js";
 import botRouter from "./routes/bots.js";
-import paymentsRouter, { paystackWebhookHandler, speedpesaWebhookHandler } from "./routes/payments.js";
+import paymentsRouter, { paystackWebhookHandler, ablinerWebhookHandler } from "./routes/payments.js";
 import adminRouter from "./routes/admin.js";
 import couponRouter from "./routes/coupons.js";
 import botTemplatesRouter from "./routes/bot-templates.js";
@@ -68,7 +68,11 @@ app.use((req, res, next) => {
   if (req.secure) res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   next();
 });
-app.use(express.json({ limit: "2mb" }));
+app.use(express.json({
+  limit: "2mb",
+  // keep the raw body: needed to verify Abliner webhook signatures
+  verify: (req, _res, buf) => { (req as unknown as { rawBody?: Buffer }).rawBody = buf; },
+}));
 app.use(cookieParser());
 app.use((req, res, next) => {
   const origin = req.headers.origin;
@@ -92,7 +96,7 @@ app.use((req, res, next) => {
 });
 
 app.post("/webhook", paystackWebhookHandler);
-app.post("/webhook/speedpesa", speedpesaWebhookHandler);
+app.post("/webhook/abliner", ablinerWebhookHandler);
 
 // Public maintenance status (bypass maintenance check)
 // (applied before the maintenance middleware below)
