@@ -21,9 +21,11 @@ export const SUPPORT_TELEGRAM = clean(process.env.SUPPORT_TELEGRAM, "bmb_tech").
 export const SUPPORT_WHATSAPP = clean(process.env.SUPPORT_WHATSAPP, "255767862457");
 export const WHATSAPP_CHANNEL_URL = clean(process.env.WHATSAPP_CHANNEL_URL, "https://whatsapp.com/channel/0029VawO6hgF6sn7k3SuVU3z");
 
+// Sender address. The domain MUST be verified in your mail provider (Resend).
+// Set MAIL_FROM in .env / Heroku Config Vars, e.g.  "Bmb Tech Hosting" <auth@bmbtech.online>
 export const MAIL_FROM = clean(
   process.env.MAIL_FROM,
-  `"${APP_NAME}" <${clean(process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER, "no-reply@bmbtech.zone.id")}>`,
+  `"${APP_NAME}" <${clean(process.env.SMTP_FROM_EMAIL, `auth@${SITE_HOST}`)}>`,
 );
 export const OG_IMAGE_URL = clean(process.env.IMAGE_URL, "https://url.bmbxmd.workers.dev/KC0DC3.png");
 
