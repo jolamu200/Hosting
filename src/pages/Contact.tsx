@@ -7,11 +7,12 @@ import { useState, useEffect } from "react";
   import { lockScroll, unlockScroll } from "@/lib/scrollLock";
   import { Button } from "@/components/ui/button";
   import {
-const SUPPORT_EMAIL = (import.meta.env.VITE_SUPPORT_EMAIL as string) || "";
     ArrowLeft, Coins, Mail, MessageCircle, Send,
     LayoutDashboard, CreditCard, BookOpen, UserCircle, LogOut,
     Bot, Shield, ChevronRight, Moon, Sun, Menu, X, ExternalLink, LogIn, UserPlus
   } from "lucide-react";
+
+const SUPPORT_EMAIL = (import.meta.env.VITE_SUPPORT_EMAIL as string) || "";
 
   function useTheme() {
     const [theme, setTheme] = useState<"dark" | "light">(() =>
