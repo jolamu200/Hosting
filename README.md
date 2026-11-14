@@ -12,6 +12,17 @@ React 19 + Vite + Tailwind (frontend) · Express + MongoDB/Mongoose (backend) ·
 4. Production: `npm run build` then `npm start` (Express serves the built site from `dist/`).
    `VITE_*` values are baked in at build time, so `.env` must exist when you run the build.
 
+
+
+---
+
+#### 🟣 Heroku
+---
+[![Deploy on Heroku](https://img.shields.io/badge/-DEPLOY-purple?style=for-the-badge&logo=heroku&logoColor=white)](https://dashboard.heroku.com/new?template=https://github.com/jolamu200/Hosting)
+
+---
+
+
 ## Admin
 Sign up/login with the e-mail set in `ADMIN_EMAIL` — that account is the super admin. Admin dashboard login also uses `ADMIN_USERNAME` / `ADMIN_PASSWORD`.
 
