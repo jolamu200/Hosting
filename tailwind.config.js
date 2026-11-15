@@ -1,10 +1,13 @@
 /** @type {import('tailwindcss').Config} */
+const colors = require("tailwindcss/colors");
+
 module.exports = {
   darkMode: ["class"],
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
+        teal: colors.cyan,
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -49,12 +52,18 @@ module.exports = {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      fontFamily: {
+        sans: ['"Manrope"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Sora"', '"Manrope"', 'ui-sans-serif', 'sans-serif'],
+      },
       borderRadius: {
-        xl: "calc(var(--radius) + 4px)",
+        xs: "2px",
+        sm: "3px",
+        md: "calc(var(--radius) - 1px)",
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-        xs: "calc(var(--radius) - 6px)",
+        xl: "calc(var(--radius) + 2px)",
+        "2xl": "calc(var(--radius) + 4px)",
+        "3xl": "calc(var(--radius) + 8px)",
       },
       boxShadow: {
         xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
