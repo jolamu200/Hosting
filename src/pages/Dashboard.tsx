@@ -37,23 +37,9 @@ function useTheme() {
 
 function AnimatedLogo() {
   return (
-    <div className="relative w-8 h-8 flex items-center justify-center" style={{ perspective: "120px" }}>
-      <style>{`
-        @keyframes txSpin {
-          0%   { transform: rotateY(0deg); }
-          28%  { transform: rotateY(360deg); }
-          54%  { transform: rotateY(360deg); }
-          82%  { transform: rotateY(720deg); }
-          100% { transform: rotateY(720deg); }
-        }
-      `}</style>
-      <div
-        className="w-8 h-8 flex items-center justify-center rounded-lg"
-        style={{ animation: "txSpin 4s cubic-bezier(0.4,0,0.2,1) infinite", willChange: "transform", transformStyle: "preserve-3d" }}
-      >
-        <span style={{ filter: "drop-shadow(0 0 8px rgba(20,184,166,0.9))" }}><AppLogoIcon className="w-6 h-6 text-primary" /></span>
-      </div>
-    </div>
+    <span className="grid place-items-center w-8 h-8 rounded-md bg-primary text-primary-foreground">
+      <AppLogoIcon className="w-5 h-5" />
+    </span>
   );
 }
 
@@ -204,21 +190,22 @@ export function Dashboard() {
   return (
     <div className="min-h-screen bg-background relative">
       <TechBackground />
-      <nav className="border-b border-border sticky top-0 bg-background/95 backdrop-blur-sm z-50">
+      <nav className="border-b border-border sticky top-0 bg-background/80 backdrop-blur-md z-50 lg:pl-72">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center gap-3">
               <button
-                className="p-2 -ml-2 rounded-lg hover:bg-muted transition-colors"
+                className="p-2 -ml-2 rounded-lg hover:bg-muted transition-colors lg:hidden"
                 onClick={() => setNavOpen(true)}
                 aria-label="Open menu"
               >
                 <Menu className="w-5 h-5" />
               </button>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 lg:hidden">
                 <AnimatedLogo />
-                <span className="font-bold text-base">Bmb Tech Hosting</span>
+                <span className="font-display font-bold text-base">Bmb Tech</span>
               </div>
+              <span className="hidden lg:block font-display font-semibold text-sm text-muted-foreground">Overview</span>
             </div>
             <div className="flex items-center gap-1.5">
               <NotificationBell />
@@ -246,19 +233,19 @@ export function Dashboard() {
 
       {navOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] lg:hidden"
           onClick={() => setNavOpen(false)}
         />
       )}
       <aside
-        className={`fixed top-0 left-0 h-full w-72 bg-card border-r border-border z-[110] transform transition-transform duration-300 ease-out ${navOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed top-0 left-0 h-full w-72 bg-card border-r border-border z-[110] transform transition-transform duration-300 ease-out ${navOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
       >
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2.5">
             <AnimatedLogo />
-            <span className="font-bold text-base">Bmb Tech Hosting</span>
+            <span className="font-display font-bold text-base">Bmb<span className="text-primary">Tech</span></span>
           </div>
-          <button onClick={() => setNavOpen(false)} className="p-2 rounded-lg hover:bg-muted transition-colors" aria-label="Close menu">
+          <button onClick={() => setNavOpen(false)} className="p-2 rounded-lg hover:bg-muted transition-colors lg:hidden" aria-label="Close menu">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -384,7 +371,7 @@ export function Dashboard() {
         </div>
       </aside>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 relative z-[1]">
+      <main className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:pl-[19rem] lg:pr-8 py-6 relative z-[1]">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <div>
             <h1 className="text-2xl font-bold">
