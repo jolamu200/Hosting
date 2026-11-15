@@ -21,10 +21,10 @@ export interface PaymentCountryDef {
 }
 
 export const PAYMENT_LOGOS = {
-  mpesa: "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/refs/heads/main/images/mpesa.jpg",
-  airtel: "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/refs/heads/main/images/airtel.jpg",
-  card: "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/refs/heads/main/images/card.jpg",
-  apple_pay: "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/refs/heads/main/images/applepay.jpg",
+  mpesa: "data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20120%2080%22%3E%3Crect%20width=%22120%22%20height=%2280%22%20rx=%2210%22%20fill=%22%2316a34a%22/%3E%3Ctext%20x=%2260%22%20y=%2246%22%20text-anchor=%22middle%22%20font-family=%22Arial,Helvetica,sans-serif%22%20font-weight=%22700%22%20font-size=%2215%22%20fill=%22%23ffffff%22%3EM-PESA%3C/text%3E%3C/svg%3E",
+  airtel: "data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20120%2080%22%3E%3Crect%20width=%22120%22%20height=%2280%22%20rx=%2210%22%20fill=%22%23dc2626%22/%3E%3Ctext%20x=%2260%22%20y=%2246%22%20text-anchor=%22middle%22%20font-family=%22Arial,Helvetica,sans-serif%22%20font-weight=%22700%22%20font-size=%2215%22%20fill=%22%23ffffff%22%3EAirtel%3C/text%3E%3C/svg%3E",
+  card: "data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20120%2080%22%3E%3Crect%20width=%22120%22%20height=%2280%22%20rx=%2210%22%20fill=%22%23334155%22/%3E%3Ctext%20x=%2260%22%20y=%2246%22%20text-anchor=%22middle%22%20font-family=%22Arial,Helvetica,sans-serif%22%20font-weight=%22700%22%20font-size=%2215%22%20fill=%22%23ffffff%22%3ECard%3C/text%3E%3C/svg%3E",
+  apple_pay: "data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20120%2080%22%3E%3Crect%20width=%22120%22%20height=%2280%22%20rx=%2210%22%20fill=%22%23111827%22/%3E%3Ctext%20x=%2260%22%20y=%2246%22%20text-anchor=%22middle%22%20font-family=%22Arial,Helvetica,sans-serif%22%20font-weight=%22700%22%20font-size=%2215%22%20fill=%22%23ffffff%22%3EApple%20Pay%3C/text%3E%3C/svg%3E",
 } as const;
 
 export const PAYMENT_METHODS: PaymentMethodDef[] = [
