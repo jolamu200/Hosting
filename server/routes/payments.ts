@@ -35,14 +35,6 @@ const router = Router();
 const MAX_DAILY_FAILURES = 5;
 const TX_RATE_KES = 5;
 
-function isSouthAfricaAvailable(): boolean {
-  return !!(process.env.PAYSTACK_SA_SECRET_KEY && process.env.PAYSTACK_SA_PUBLIC_KEY);
-}
-
-function isGhanaAvailable(): boolean {
-  return !!(process.env.PAYSTACK_GHANA_SECRET_KEY && process.env.PAYSTACK_GHANA_PUBLIC_KEY);
-}
-
 function getParam(val: string | string[]): string {
   return Array.isArray(val) ? (val[0] ?? "") : val;
 }
@@ -113,8 +105,6 @@ router.get("/config", (_req, res) => {
     paystackPublicKey: PAYSTACK_PUBLIC_KEY,
     nigeriaPublicKey: getNigeriaPublicKey(),
     nigeriaAvailable: isNigeriaAvailable(),
-    southAfricaAvailable: isSouthAfricaAvailable(),
-    ghanaAvailable: isGhanaAvailable(),
     tanzaniaAvailable: isTanzaniaAvailable(),
   });
 });
