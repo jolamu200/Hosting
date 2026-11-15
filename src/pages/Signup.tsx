@@ -36,11 +36,9 @@ function AnimatedLogoHeader() {
   return (
     <div className="mx-auto mb-3 flex items-center justify-center" style={{ width: 56, height: 56, perspective: "120px" }}>
       <div
-        className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shadow-sm"
+        className="w-14 h-14 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30"
       >
-        <span style={{ filter: "drop-shadow(0 0 6px rgba(20,184,166,0.8))" }}>
-          <AppLogoIcon className="w-8 h-8 text-primary" />
-        </span>
+        <AppLogoIcon className="w-8 h-8" />
       </div>
     </div>
   );
