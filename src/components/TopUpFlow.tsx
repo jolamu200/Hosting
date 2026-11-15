@@ -213,10 +213,10 @@ function TanzaniaPaymentModal({
   );
 }
 
-const LOGO_MPESA = "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/refs/heads/main/images/mpesa.jpg";
-const LOGO_AIRTEL = "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/refs/heads/main/images/airtel.jpg";
-const LOGO_CARD = "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/refs/heads/main/images/creditcard.jpg";
-const LOGO_APPLEPAY = "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/refs/heads/main/images/applepay.jpg";
+const LOGO_MPESA = "data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20120%2080%22%3E%3Crect%20width=%22120%22%20height=%2280%22%20rx=%2210%22%20fill=%22%2316a34a%22/%3E%3Ctext%20x=%2260%22%20y=%2246%22%20text-anchor=%22middle%22%20font-family=%22Arial,Helvetica,sans-serif%22%20font-weight=%22700%22%20font-size=%2215%22%20fill=%22%23ffffff%22%3EM-PESA%3C/text%3E%3C/svg%3E";
+const LOGO_AIRTEL = "data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20120%2080%22%3E%3Crect%20width=%22120%22%20height=%2280%22%20rx=%2210%22%20fill=%22%23dc2626%22/%3E%3Ctext%20x=%2260%22%20y=%2246%22%20text-anchor=%22middle%22%20font-family=%22Arial,Helvetica,sans-serif%22%20font-weight=%22700%22%20font-size=%2215%22%20fill=%22%23ffffff%22%3EAirtel%3C/text%3E%3C/svg%3E";
+const LOGO_CARD = "data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20120%2080%22%3E%3Crect%20width=%22120%22%20height=%2280%22%20rx=%2210%22%20fill=%22%23334155%22/%3E%3Ctext%20x=%2260%22%20y=%2246%22%20text-anchor=%22middle%22%20font-family=%22Arial,Helvetica,sans-serif%22%20font-weight=%22700%22%20font-size=%2215%22%20fill=%22%23ffffff%22%3ECard%3C/text%3E%3C/svg%3E";
+const LOGO_APPLEPAY = "data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20120%2080%22%3E%3Crect%20width=%22120%22%20height=%2280%22%20rx=%2210%22%20fill=%22%23111827%22/%3E%3Ctext%20x=%2260%22%20y=%2246%22%20text-anchor=%22middle%22%20font-family=%22Arial,Helvetica,sans-serif%22%20font-weight=%22700%22%20font-size=%2215%22%20fill=%22%23ffffff%22%3EApple%20Pay%3C/text%3E%3C/svg%3E";
 
 function PayLogo({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
   return (
@@ -653,11 +653,11 @@ function CopyButton({ value, className = "" }: { value: string; className?: stri
   );
 }
 
-const LOGO_MANUAL_MPESA = "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/refs/heads/main/images/mpesa.jpg";
-const LOGO_MANUAL_BINANCE = "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/refs/heads/main/images/binance.jpg";
-const LOGO_MANUAL_BYBIT = "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/refs/heads/main/images/bybit.jpg";
-const LOGO_MANUAL_BITGET = "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/refs/heads/main/images/bitget.jpg";
-const LOGO_MANUAL_PAYPAL = "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/refs/heads/main/images/paypal.jpg";
+const LOGO_MANUAL_MPESA = "data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20120%2080%22%3E%3Crect%20width=%22120%22%20height=%2280%22%20rx=%2210%22%20fill=%22%2316a34a%22/%3E%3Ctext%20x=%2260%22%20y=%2246%22%20text-anchor=%22middle%22%20font-family=%22Arial,Helvetica,sans-serif%22%20font-weight=%22700%22%20font-size=%2215%22%20fill=%22%23ffffff%22%3EM-PESA%3C/text%3E%3C/svg%3E";
+const LOGO_MANUAL_BINANCE = "data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20120%2080%22%3E%3Crect%20width=%22120%22%20height=%2280%22%20rx=%2210%22%20fill=%22%23f0b90b%22/%3E%3Ctext%20x=%2260%22%20y=%2246%22%20text-anchor=%22middle%22%20font-family=%22Arial,Helvetica,sans-serif%22%20font-weight=%22700%22%20font-size=%2215%22%20fill=%22%23111827%22%3EBinance%3C/text%3E%3C/svg%3E";
+const LOGO_MANUAL_BYBIT = "data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20120%2080%22%3E%3Crect%20width=%22120%22%20height=%2280%22%20rx=%2210%22%20fill=%22%23111827%22/%3E%3Ctext%20x=%2260%22%20y=%2246%22%20text-anchor=%22middle%22%20font-family=%22Arial,Helvetica,sans-serif%22%20font-weight=%22700%22%20font-size=%2215%22%20fill=%22%23f7a600%22%3EBybit%3C/text%3E%3C/svg%3E";
+const LOGO_MANUAL_BITGET = "data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20120%2080%22%3E%3Crect%20width=%22120%22%20height=%2280%22%20rx=%2210%22%20fill=%22%230e9bb0%22/%3E%3Ctext%20x=%2260%22%20y=%2246%22%20text-anchor=%22middle%22%20font-family=%22Arial,Helvetica,sans-serif%22%20font-weight=%22700%22%20font-size=%2215%22%20fill=%22%23ffffff%22%3EBitget%3C/text%3E%3C/svg%3E";
+const LOGO_MANUAL_PAYPAL = "data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20120%2080%22%3E%3Crect%20width=%22120%22%20height=%2280%22%20rx=%2210%22%20fill=%22%231d4ed8%22/%3E%3Ctext%20x=%2260%22%20y=%2246%22%20text-anchor=%22middle%22%20font-family=%22Arial,Helvetica,sans-serif%22%20font-weight=%22700%22%20font-size=%2215%22%20fill=%22%23ffffff%22%3EPayPal%3C/text%3E%3C/svg%3E";
 
 const MANUAL_METHODS = [
   {
