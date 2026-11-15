@@ -1260,8 +1260,6 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
   const [otherMethodModalOpen, setOtherMethodModalOpen] = useState(false);
   const [country, setCountry] = useState<"kenya" | "nigeria" | "tanzania" | "other" | null>(null);
   const [_nigeriaAvailable, setNigeriaAvailable] = useState(false);
-  const [southAfricaAvailable, setSouthAfricaAvailable] = useState(false);
-  const [ghanaAvailable, setGhanaAvailable] = useState(false);
   const [tzModalOpen, setTzModalOpen] = useState(false);
   const [selectedTzPkg, setSelectedTzPkg] = useState<TanzaniaPackage | null>(null);
 
@@ -1278,10 +1276,8 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
 
     getPaymentsConfig()
       .then(config => {
-        const c = config as { nigeriaAvailable?: boolean; southAfricaAvailable?: boolean; ghanaAvailable?: boolean };
+        const c = config as { nigeriaAvailable?: boolean };
         setNigeriaAvailable(!!c.nigeriaAvailable);
-        setSouthAfricaAvailable(!!c.southAfricaAvailable);
-        setGhanaAvailable(!!c.ghanaAvailable);
       })
       .catch(() => {});
   }, [showToast]);
@@ -1336,42 +1332,6 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
                 <p className="text-sm text-muted-foreground mt-1">Pay with Tigo, Airtel, Vodacom</p>
                 <p className="text-xs text-muted-foreground mt-0.5">Prices in TZS · Tigo, Airtel, Vodacom</p>
               </button>
-
-              {southAfricaAvailable ? (
-                <button
-                  onClick={() => setCountry("other")}
-                  className="group p-6 rounded-xl border border-border bg-card/50 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all text-left"
-                >
-                  <div className="text-4xl mb-3">🇿🇦</div>
-                  <p className="font-bold text-lg">South Africa</p>
-                  <p className="text-sm text-muted-foreground mt-1">Pay with Card, Apple Pay</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Prices in ZAR</p>
-                </button>
-              ) : (
-                <div className="p-6 rounded-xl border border-border/50 bg-card/20 opacity-60">
-                  <div className="text-4xl mb-3">🇿🇦</div>
-                  <p className="font-bold text-lg">South Africa</p>
-                  <p className="text-sm text-muted-foreground mt-1">Coming soon</p>
-                </div>
-              )}
-
-              {ghanaAvailable ? (
-                <button
-                  onClick={() => setCountry("other")}
-                  className="group p-6 rounded-xl border border-border bg-card/50 hover:border-yellow-500/40 hover:bg-yellow-500/5 transition-all text-left"
-                >
-                  <div className="text-4xl mb-3">🇬🇭</div>
-                  <p className="font-bold text-lg">Ghana</p>
-                  <p className="text-sm text-muted-foreground mt-1">Pay with Card, Mobile Money</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Prices in GHS</p>
-                </button>
-              ) : (
-                <div className="p-6 rounded-xl border border-border/50 bg-card/20 opacity-60">
-                  <div className="text-4xl mb-3">🇬🇭</div>
-                  <p className="font-bold text-lg">Ghana</p>
-                  <p className="text-sm text-muted-foreground mt-1">Coming soon</p>
-                </div>
-              )}
 
               <button
                 onClick={() => setCountry("other")}
