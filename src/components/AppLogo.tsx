@@ -2,6 +2,7 @@ interface AppLogoProps {
   className?: string;
 }
 
+/** Bmb Tech mark: a monoline "B" built from two stacked loops. */
 export function AppLogoIcon({ className = "w-6 h-6" }: AppLogoProps) {
   return (
     <svg
@@ -11,9 +12,13 @@ export function AppLogoIcon({ className = "w-6 h-6" }: AppLogoProps) {
       className={className}
       aria-hidden="true"
     >
-      <rect x="7" y="9" width="22" height="4" rx="2" fill="currentColor" />
-      <rect x="15" y="13" width="6" height="14" rx="2" fill="currentColor" />
-      <rect x="10" y="22" width="16" height="3" rx="1.5" fill="currentColor" fillOpacity="0.5" />
+      <path
+        d="M11 6v24M11 6h7a5.5 5.5 0 0 1 0 11h-7M11 17h8a6.5 6.5 0 0 1 0 13h-8"
+        stroke="currentColor"
+        strokeWidth="3.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -21,9 +26,11 @@ export function AppLogoIcon({ className = "w-6 h-6" }: AppLogoProps) {
 export function AppLogoFull({ className = "" }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
-      <AppLogoIcon className="w-6 h-6 text-primary" />
-      <span className="font-bold tracking-tight text-foreground">
-        Bmb Tech <span className="text-primary">Hosting</span>
+      <span className="grid place-items-center w-7 h-7 rounded-md bg-primary text-primary-foreground">
+        <AppLogoIcon className="w-[18px] h-[18px]" />
+      </span>
+      <span className="font-display font-bold tracking-tight text-foreground">
+        Bmb<span className="text-primary">Tech</span>
       </span>
     </span>
   );
