@@ -22,7 +22,7 @@ const ACCENT_OPTIONS: { key: AccentColor; label: string; color: string; hsl: str
   { key: "violet", label: "Violet",  color: "#8b5cf6", hsl: "262 83% 58%" },
   { key: "indigo", label: "Indigo",  color: "#6366f1", hsl: "239 84% 67%" },
   { key: "blue",   label: "Blue",    color: "#3b82f6", hsl: "217 91% 60%" },
-  { key: "cyan",   label: "Cyan",    color: "#06b6d4", hsl: "192 91% 44%" },
+  { key: "cyan",   label: "Cyan",    color: "#06d4f2", hsl: "189 94% 48%" },
   { key: "teal",   label: "Teal",    color: "#14b8a6", hsl: "173 80% 40%" },
   { key: "green",  label: "Green",   color: "#22c55e", hsl: "142 71% 45%" },
   { key: "yellow", label: "Yellow",  color: "#eab308", hsl: "48 96% 53%" },
@@ -48,7 +48,7 @@ function applyAccent(accent: AccentColor) {
 
 function useAccent() {
   const [accent, setAccentState] = useState<AccentColor>(() => {
-    return (localStorage.getItem("accent") as AccentColor) || "teal";
+    return (localStorage.getItem("accent") as AccentColor) || "cyan";
   });
   useEffect(() => { applyAccent(accent); }, [accent]);
   const setAccent = (a: AccentColor) => { setAccentState(a); applyAccent(a); };
@@ -56,7 +56,7 @@ function useAccent() {
 }
 
 export function initStoredAccent() {
-  const accent = (localStorage.getItem("accent") as AccentColor) || "teal";
+  const accent = (localStorage.getItem("accent") as AccentColor) || "cyan";
   applyAccent(accent);
 }
 
