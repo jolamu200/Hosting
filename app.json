@@ -96,22 +96,6 @@
       "description": "GitHub OAuth App Client Secret",
       "required": false
     },
-    "PAYSTACK_SA_PUBLIC_KEY": {
-      "description": "South Africa Paystack public API key (pk_live_...). Leave empty to disable SA payments.",
-      "required": false
-    },
-    "PAYSTACK_SA_SECRET_KEY": {
-      "description": "South Africa Paystack secret API key (sk_live_...). Leave empty to disable SA payments.",
-      "required": false
-    },
-    "PAYSTACK_GHANA_PUBLIC_KEY": {
-      "description": "Ghana Paystack public API key (pk_live_...). Leave empty to disable Ghana payments.",
-      "required": false
-    },
-    "PAYSTACK_GHANA_SECRET_KEY": {
-      "description": "Ghana Paystack secret API key (sk_live_...). Leave empty to disable Ghana payments.",
-      "required": false
-    },
     "ADMIN_EMAIL": {
       "description": "E-mail of the super admin account",
       "required": true
