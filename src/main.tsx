@@ -5,6 +5,7 @@ import { StrictMode, Component } from "react";
   import App from "./App";
 
   const ACCENT_HSL: Record<string, string> = {
+    cyan:   "189 94% 48%",
     violet: "262 83% 58%",
     red:    "0 72% 51%",
     blue:   "217 91% 60%",
@@ -16,8 +17,8 @@ import { StrictMode, Component } from "react";
     const theme = localStorage.getItem("theme") || "dark";
     document.documentElement.classList.add(theme);
 
-    const accent = localStorage.getItem("accent") || "violet";
-    const hsl = ACCENT_HSL[accent] || ACCENT_HSL["violet"];
+    const accent = localStorage.getItem("accent") || "cyan";
+    const hsl = ACCENT_HSL[accent] || ACCENT_HSL["cyan"];
     const style = document.createElement("style");
     style.id = "__accent_override__";
     style.textContent = `:root, .dark { --primary: ${hsl}; --ring: ${hsl}; }`;
