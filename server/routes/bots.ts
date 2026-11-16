@@ -316,7 +316,7 @@ import { DEFAULT_HEROKU_TEAM } from "../config.js";
         pollBotSetup(bot._id.toString(), deployed.setupId, appName, user._id.toString(), "Free trial bot");
       } else {
         const cost = 10 * months;
-        if (user.txCoins < cost) { res.status(403).json({ error: "Insufficient TX Coins", code: "INSUFFICIENT_COINS" }); return; }
+        if (user.txCoins < cost) { res.status(403).json({ error: "Insufficient balance", code: "INSUFFICIENT_COINS" }); return; }
 
         const deployed = await deployBotApp(appName, bestTeam, sessionVar, cleanPhone, false);
         if (!deployed.success) { res.status(500).json({ error: "Failed to deploy bot" }); return; }
@@ -386,7 +386,7 @@ import { DEFAULT_HEROKU_TEAM } from "../config.js";
         const template = await BotTemplate.findById(botTemplateId);
         if (!template) { res.status(404).json({ error: "Bot template not found" }); return; }
         const cost = (template.costTx ?? 10) * months;
-        if (user.txCoins < cost) { res.status(403).json({ error: "Insufficient TX Coins", code: "INSUFFICIENT_COINS" }); return; }
+        if (user.txCoins < cost) { res.status(403).json({ error: "Insufficient balance", code: "INSUFFICIENT_COINS" }); return; }
         const teams = await Team.find({ active: true });
         const teamNames = teams.length > 0 ? teams.map(t => t.name) : (DEFAULT_HEROKU_TEAM ? [DEFAULT_HEROKU_TEAM] : []);
         const bestTeam = await findBestTeam(teamNames);
@@ -406,13 +406,16 @@ import { DEFAULT_HEROKU_TEAM } from "../config.js";
             if (!templateIsDefault && (template as unknown as { githubRepo?: string }).githubRepo) {
               const rawRepo = ((template as unknown as { githubRepo: string }).githubRepo).replace(/\.git$/, "");
               const tarballUrl = rawRepo + "/tarball/HEAD";
+              const isCustomRepo = (template as unknown as { custom?: boolean }).custom === true;
               const envOverrides: Record<string, string> = {
                 ...(extraVars || {}),
                 SESSION: sessionVar,
                 BOT_NAME: botName,
                 HEROKU_APP_NAME: botName,
-                HEROKU_API_KEY: process.env.HEROKU_API_KEY || "",
+                // never expose the platform's Heroku key to third-party code
+                ...(isCustomRepo ? {} : { HEROKU_API_KEY: process.env.HEROKU_API_KEY || "" }),
               };
+              if (isCustomRepo) delete envOverrides.HEROKU_API_KEY;
               deployed = await deployBotApp(botName, bestTeam, sessionVar, "", false, tarballUrl, envOverrides);
             } else {
               deployed = await deployBotApp(botName, bestTeam, sessionVar, "", false);
@@ -516,7 +519,7 @@ import { DEFAULT_HEROKU_TEAM } from "../config.js";
       const user = await User.findById(req.user!._id);
       if (!user) { res.status(404).json({ error: "User not found" }); return; }
       const cost = 10 * months;
-      if (user.txCoins < cost) { res.status(403).json({ error: "Insufficient TX Coins", code: "INSUFFICIENT_COINS" }); return; }
+      if (user.txCoins < cost) { res.status(403).json({ error: "Insufficient balance", code: "INSUFFICIENT_COINS" }); return; }
       const now = new Date();
       const base = bot.status === "expired" ? now : (bot.expiresAt > now ? bot.expiresAt : now);
       bot.expiresAt = new Date(base.getTime() + months * 30 * 24 * 60 * 60 * 1000);
