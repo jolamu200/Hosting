@@ -15,6 +15,7 @@ import { Modal } from "./Modal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { tx } from "@/lib/money";
 
 interface BotCardProps {
   bot: Bot;
@@ -105,7 +106,7 @@ export function BotCard({ bot, onUpdate, deploying = false, coinBalance = 0 }: B
       const res = await fn() as { success?: boolean; error?: string; code?: string };
       if (res && typeof res === "object" && "error" in res && res.error) {
         if (res.code === "INSUFFICIENT_COINS") {
-          showToast("Insufficient TX — redirecting to Top Up", "error");
+          showToast("Insufficient balance — redirecting to Top Up", "error");
           navigate("/topup");
         } else {
           showToast(res.error, "error");
@@ -176,7 +177,7 @@ export function BotCard({ bot, onUpdate, deploying = false, coinBalance = 0 }: B
 
   const handleRenew = async () => {
     if (coinBalance < RENEW_COST) {
-      showToast(`You need ${RENEW_COST} TX to renew for 1 month`, "error");
+      showToast(`You need ${tx(RENEW_COST)} to renew for 1 month`, "error");
       navigate("/topup");
       return;
     }
@@ -327,7 +328,7 @@ export function BotCard({ bot, onUpdate, deploying = false, coinBalance = 0 }: B
               </Button>
 
               {!bot.isTrial && bot.status === "expired" && (
-                <Button size="sm" variant="outline" onClick={() => setRenewOpen(true)} className="h-8 text-xs bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20 hover:text-orange-300" title="Renew an expired bot using TX coins">
+                <Button size="sm" variant="outline" onClick={() => setRenewOpen(true)} className="h-8 text-xs bg-orange-500/10 border-orange-500/30 text-orange-400 hover:bg-orange-500/20 hover:text-orange-300" title="Renew an expired bot from your balance">
                   <Timer className="w-3 h-3 mr-1" />
                   Renew Now
                 </Button>
@@ -513,16 +514,16 @@ export function BotCard({ bot, onUpdate, deploying = false, coinBalance = 0 }: B
             </div>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Cost</span>
-              <span className="font-semibold">{RENEW_COST} TX</span>
+              <span className="font-semibold">{tx(RENEW_COST)}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Your balance</span>
-              <span className={`font-semibold ${canAffordRenew ? "text-teal-400" : "text-red-400"}`}>{coinBalance} TX</span>
+              <span className={`font-semibold ${canAffordRenew ? "text-teal-400" : "text-red-400"}`}>{tx(coinBalance)}</span>
             </div>
           </div>
           {!canAffordRenew && (
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
-              Insufficient TX. You need {RENEW_COST} TX but have {coinBalance} TX.
+              Insufficient balance. You need {tx(RENEW_COST)} but have {tx(coinBalance)}.
             </div>
           )}
           <Button
@@ -531,7 +532,7 @@ export function BotCard({ bot, onUpdate, deploying = false, coinBalance = 0 }: B
             disabled={!!loading}
           >
             {loading === "Renew" ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-            {canAffordRenew ? `Renew — ${RENEW_COST} TX` : "Top Up to Renew"}
+            {canAffordRenew ? `Renew — ${tx(RENEW_COST)}` : "Top Up to Renew"}
           </Button>
         </div>
       </Modal>
