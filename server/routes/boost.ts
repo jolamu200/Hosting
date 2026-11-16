@@ -89,7 +89,7 @@ router.post("/order", sessionOrApiKeyGuard, banCheck, paymentRateLimit, async (r
     const user = await User.findById(req.user!._id);
     if (!user) { res.status(404).json({ error: "User not found" }); return; }
     if (!user.isModerator && !req.viaApiKey) {
-      res.status(403).json({ error: "TX payment isn't available for boosting on the website. Use /boost/order/prepare to pay directly.", code: "TX_NOT_ALLOWED" });
+      res.status(403).json({ error: "Balance payment isn't available for boosting on the website. Use /boost/order/prepare to pay directly.", code: "TX_NOT_ALLOWED" });
       return;
     }
 
@@ -106,7 +106,7 @@ router.post("/order", sessionOrApiKeyGuard, banCheck, paymentRateLimit, async (r
 
     if (user.txCoins < costTx) {
       res.status(402).json({
-        error: `Insufficient TX balance. This order costs ${costTx} TX but you only have ${user.txCoins} TX. Top up at /topup then retry.`,
+        error: `Insufficient balance. Top up at /topup then retry.`,
         code: "INSUFFICIENT_COINS",
         requiredTx: costTx,
         balanceTx: user.txCoins,
@@ -165,7 +165,7 @@ router.post("/order", sessionOrApiKeyGuard, banCheck, paymentRateLimit, async (r
       await user.save();
       order.status = "refunded";
       await order.save();
-      await createNotification(user._id, "refund", "Boost order failed", `Your order for ${service.name} couldn't be placed and your ${costTx} TX was refunded.`);
+      await createNotification(user._id, "refund", "Boost order failed", `Your order for ${service.name} couldn't be placed and the amount was refunded to your balance.`);
       const msg = providerErr instanceof Error ? providerErr.message : "Order failed";
       res.status(502).json({ error: msg });
     }
