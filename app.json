@@ -107,6 +107,15 @@
     "ABLINER_WEBHOOK_SECRET": {
       "description": "Abliner webhook signing secret (whsec_...). Required to confirm payments. Webhook URL: https://YOUR-DOMAIN/webhook/abliner",
       "required": false
+    },
+    "GITHUB_TOKEN": {
+      "description": "Optional GitHub token (no scopes needed) to raise the repo-search rate limit.",
+      "required": false
+    },
+    "ALLOW_CUSTOM_REPOS": {
+      "description": "Set to false to stop users deploying their own GitHub repositories.",
+      "required": false,
+      "value": "true"
     }
   }
 }
