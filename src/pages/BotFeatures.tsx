@@ -313,7 +313,7 @@ export function BotFeatures() {
             </div>
             <div>
               <p className="font-semibold text-sm">Try Bmb Bot for Free</p>
-              <p className="text-xs text-muted-foreground">Deploy a free trial bot and test all features instantly — no TX needed.</p>
+              <p className="text-xs text-muted-foreground">Deploy a free trial bot and test all features instantly — no payment needed.</p>
             </div>
           </div>
           <Button
@@ -391,7 +391,7 @@ export function BotFeatures() {
             <Shield className="w-5 h-5 text-teal-400 shrink-0" />
             <div>
               <p className="font-semibold text-sm">Ready to experience Bmb Bot?</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Deploy a free trial bot instantly — no TX coins required to get started.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Deploy a free trial bot instantly — no payment required to get started.</p>
             </div>
           </div>
           <Button
