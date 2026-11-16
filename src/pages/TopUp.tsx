@@ -8,6 +8,7 @@ import { PageLoader } from "@/components/PageLoader";
 import { TopUpFlow } from "@/components/TopUpFlow";
 import { placeBoostOrder } from "@/lib/api";
 import { ArrowLeft, Coins } from "lucide-react";
+import { tx } from "@/lib/money";
 
 export default function TopUp() {
   const { user, loading, refreshUser } = useAuth();
@@ -20,7 +21,7 @@ export default function TopUp() {
     const status = searchParams.get("status");
     const ref = searchParams.get("ref");
     if (status === "success" && ref) {
-      showToast("Payment confirmed! TX added to your balance.", "success");
+      showToast("Payment confirmed! Your balance was updated.", "success");
       refreshUser().then(async () => {
         const pending = localStorage.getItem("pendingBoostOrder");
         if (pending) {
@@ -54,14 +55,14 @@ export default function TopUp() {
           </button>
           <div>
             <h1 className="text-2xl font-bold">Top Up</h1>
-            <p className="text-sm text-muted-foreground">Add TX coins to your account</p>
+            <p className="text-sm text-muted-foreground">Add funds to your account</p>
           </div>
           {user && (
             <div className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 border border-border">
               <Coins className="w-4 h-4 text-yellow-400" />
               <div className="flex flex-col leading-tight">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Balance</span>
-                <span className="font-semibold text-sm">{user.txCoins} TX</span>
+                <span className="font-semibold text-sm">{tx(user.txCoins)}</span>
               </div>
             </div>
           )}
