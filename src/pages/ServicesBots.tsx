@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
   import { useAuth } from "@/hooks/useAuth";
   import { useToast } from "@/hooks/useToast";
   import { useNavLoader } from "@/App";
-  import { getBotTemplates } from "@/lib/api";
+  import { getBotTemplates, searchGithubRepos, createCustomTemplate, type GithubRepoResult } from "@/lib/api";
   import { GuestGuardModal } from "@/components/GuestGuard";
   import type { BotTemplate } from "@/types";
   import { TechBackground } from "@/components/TechBackground";
@@ -13,8 +13,9 @@ import { useState, useEffect } from "react";
   import {
     ArrowLeft, Coins, Loader2, Sparkles, ExternalLink,
     LayoutDashboard, CreditCard, BookOpen, UserCircle, LogOut,
-    Shield, ChevronRight, Moon, Sun, Menu, X, Bot, Copy, Check, LogIn, UserPlus, Zap, Star, Flame
+    Shield, ChevronRight, Moon, Sun, Menu, X, Bot, Copy, Check, LogIn, UserPlus, Zap, Star, Search, GitFork
   } from "lucide-react";
+import { tx } from "@/lib/money";
 
   function useTheme() {
     const [theme, setTheme] = useState<"dark" | "light">(() =>
@@ -73,6 +74,37 @@ import { useState, useEffect } from "react";
     const [loading, setLoading] = useState(true);
     const [navOpen, setNavOpen] = useState(false);
     const [guestModal, setGuestModal] = useState(false);
+    const [query, setQuery] = useState("");
+    const [results, setResults] = useState<GithubRepoResult[] | null>(null);
+    const [searching, setSearching] = useState(false);
+    const [preparing, setPreparing] = useState<string | null>(null);
+
+    const runSearch = async () => {
+      const q = query.trim();
+      if (q.length < 2) { setResults(null); return; }
+      setSearching(true);
+      try {
+        setResults(await searchGithubRepos(q));
+      } catch (e) {
+        showToast(e instanceof Error ? e.message : "Search failed", "error");
+      } finally {
+        setSearching(false);
+      }
+    };
+    const clearSearch = () => { setQuery(""); setResults(null); };
+
+    const deployRepo = async (repo: GithubRepoResult) => {
+      if (!user) { setGuestModal(true); return; }
+      setPreparing(repo.fullName);
+      try {
+        const { slug } = await createCustomTemplate(repo.url);
+        navigateWithLoader(`/services/bots/${slug}`);
+      } catch (e) {
+        showToast(e instanceof Error ? e.message : "Could not prepare this repository", "error");
+      } finally {
+        setPreparing(null);
+      }
+    };
 
     useEffect(() => {
       if (navOpen) {
@@ -90,7 +122,7 @@ import { useState, useEffect } from "react";
 
     const navItems = [
       { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-      { label: "Top Up TX", icon: CreditCard, path: "/topup" },
+      { label: "Top Up", icon: CreditCard, path: "/topup" },
       { label: "Docs", icon: BookOpen, path: "/docs" },
     ];
 
@@ -160,7 +192,7 @@ import { useState, useEffect } from "react";
                 <p className="text-sm font-semibold truncate">{user.username ? `@${user.username}` : user.email}</p>
                 <div className="mt-2 flex items-center gap-1.5">
                   <Coins className="w-3.5 h-3.5 text-teal-400" />
-                  <span className="text-sm font-bold text-teal-400">Balance: {user.txCoins} TX</span>
+                  <span className="text-sm font-bold text-teal-400">Balance: {tx(user.txCoins)}</span>
                 </div>
               </div>
             ) : (
@@ -235,11 +267,26 @@ import { useState, useEffect } from "react";
             </div>
           </div>
 
+          <form onSubmit={e => { e.preventDefault(); runSearch(); }} className="flex gap-2 mb-6">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search GitHub repos, a username, or paste a github.com URL"
+                className="w-full h-11 pl-10 pr-3 rounded-xl border border-border bg-card text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
+              />
+            </div>
+            <Button type="submit" className="h-11 px-4 rounded-xl" disabled={searching} aria-label="Search">
+              {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+            </Button>
+          </form>
+
           {!user && (
             <div className="mb-6 p-4 rounded-xl bg-teal-500/10 border border-teal-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-teal-400">Sign in to unlock full features</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Browse freely — log in or sign up to deploy bots, manage your account, and top up TX coins.</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Browse freely — log in or sign up to deploy bots, manage your account, and top up your balance.</p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <Button size="sm" variant="outline" onClick={() => navigateWithLoader("/login")}>Log In</Button>
@@ -248,7 +295,41 @@ import { useState, useEffect } from "react";
             </div>
           )}
 
-          {loading ? (
+          {results !== null ? (
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-bold text-lg flex items-center gap-2"><Search className="w-4 h-4 text-primary" /> GitHub Results</h2>
+                <button onClick={clearSearch} className="text-sm text-muted-foreground hover:text-foreground">Clear search</button>
+              </div>
+              {results.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground text-sm">
+                  No repositories found. Try another name, a GitHub username, or paste the repo link.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {results.map(r => (
+                    <div key={r.fullName} className="rounded-2xl border border-border bg-card p-4 flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-muted/50 overflow-hidden shrink-0 grid place-items-center">
+                        {r.avatar ? <img src={r.avatar} alt={r.owner} className="w-full h-full object-cover" /> : <Bot className="w-6 h-6 text-muted-foreground/50" />}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold truncate">{r.fullName}</p>
+                        <p className="text-sm text-muted-foreground truncate">{r.description || "No description"}</p>
+                        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
+                          <span className="flex items-center gap-1"><Star className="w-3 h-3" />{r.stars}</span>
+                          <span className="flex items-center gap-1"><GitFork className="w-3 h-3" />{r.forks}</span>
+                          {r.language && <span>{r.language}</span>}
+                        </div>
+                      </div>
+                      <Button size="sm" variant="outline" className="shrink-0" disabled={preparing === r.fullName} onClick={() => deployRepo(r)}>
+                        {preparing === r.fullName ? <Loader2 className="w-4 h-4 animate-spin" /> : "Deploy →"}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
@@ -279,11 +360,11 @@ import { useState, useEffect } from "react";
                           </span>
                         </div>
                         <h2 className="text-xl font-bold mb-1">{freeTrialTemplate.name}</h2>
-                        <p className="text-sm text-muted-foreground mb-1">Try our WhatsApp bot with no TX coins required. Experience the full feature set before committing.</p>
+                        <p className="text-sm text-muted-foreground mb-1">Try our WhatsApp bot with no payment required. Experience the full feature set before committing.</p>
                         <div className="flex items-center gap-4 mt-3 flex-wrap">
                           <span className="flex items-center gap-1.5 text-xs text-teal-300 font-medium">
                             <Check className="w-3.5 h-3.5 text-teal-400" />
-                            No TX coins needed
+                            No payment needed
                           </span>
                           <span className="flex items-center gap-1.5 text-xs text-teal-300 font-medium">
                             <Check className="w-3.5 h-3.5 text-teal-400" />
@@ -325,44 +406,40 @@ import { useState, useEffect } from "react";
                     <h2 className="font-bold text-lg">Paid Bots</h2>
                     <div className="flex-1 h-px bg-border" />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {allPaidDisplay.map((template, index) => (
-                      <div key={`paid-${template._id}`} className="rounded-xl border border-border bg-card overflow-hidden hover:border-teal-500/30 transition-all duration-200 flex flex-col">
-                        <div className="aspect-video bg-muted/40 overflow-hidden relative">
-                          {template.imageUrl ? (
-                            <img src={template.imageUrl} alt={template.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Bot className="w-12 h-12 text-muted-foreground/40" />
-                            </div>
-                          )}
-                          {index === 0 && (
-                            <div className="absolute top-2 left-2 flex items-center gap-1 bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                              <Flame className="w-3 h-3" />
-                              Hot
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-4 flex flex-col flex-1">
-                          <h3 className="font-semibold text-base mb-1">{template.name}</h3>
-                          <div className="flex items-center gap-1.5 mb-3">
-                            <Coins className="w-3.5 h-3.5 text-teal-400" />
-                            <span className="text-sm text-teal-400 font-medium">{template.costTx} TX / month</span>
+                  <div className="space-y-4">
+                    {allPaidDisplay.map(template => (
+                      <div key={`paid-${template._id}`} className="rounded-2xl border border-border bg-card p-4 sm:p-5 hover:border-primary/40 transition-colors">
+                        <div className="flex items-start gap-4">
+                          <div className="w-14 h-14 rounded-xl bg-muted/50 overflow-hidden shrink-0 grid place-items-center">
+                            {template.imageUrl ? (
+                              <img src={template.imageUrl} alt={template.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <Bot className="w-6 h-6 text-muted-foreground/50" />
+                            )}
                           </div>
-                          <div className="mt-auto space-y-2">
-                            <Button className="w-full" size="sm" onClick={() => handlePaidDeploy(template)}>
-                              {user ? "Deploy" : "Deploy (Sign in required)"}
-                            </Button>
-                            <div className="flex items-center justify-between">
-                              <CopyShareLink slug={template.shareableSlug} />
-                              <a href={template.githubRepo.startsWith("http") ? template.githubRepo : `https://github.com/${template.githubRepo}`} target="_blank" rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                                <ExternalLink className="w-3.5 h-3.5" />
-                                GitHub
-                              </a>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-semibold text-lg">{template.name}</h3>
+                              {template.popular && <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-black">Popular</span>}
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-0.5">{tx(template.costTx)} / month</p>
+                            <div className="flex items-center gap-3 mt-1.5 text-sm text-muted-foreground flex-wrap">
+                              <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5" />{template.stars ?? 0}</span>
+                              <span className="flex items-center gap-1"><GitFork className="w-3.5 h-3.5" />{template.forks ?? 0}</span>
+                              {template.language && <span>{template.language}</span>}
                             </div>
                           </div>
                         </div>
+                        <div className="mt-4 flex gap-2">
+                          <Button className="flex-1" onClick={() => handlePaidDeploy(template)}>
+                            {user ? "Deploy" : "Deploy (Sign in required)"}
+                          </Button>
+                          <a href={template.githubRepo.startsWith("http") ? template.githubRepo : `https://github.com/${template.githubRepo}`} target="_blank" rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-4 rounded-md border border-border text-sm hover:bg-muted transition-colors">
+                            <ExternalLink className="w-3.5 h-3.5" /> GitHub
+                          </a>
+                        </div>
+                        <div className="mt-3"><CopyShareLink slug={template.shareableSlug} /></div>
                       </div>
                     ))}
                   </div>
