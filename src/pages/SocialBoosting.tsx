@@ -24,6 +24,7 @@ import {
   ArrowLeft, Search, TrendingUp, Loader2, Coins, ExternalLink,
   CheckCircle2, Clock, XCircle, RefreshCw, Send, LayoutGrid, X, ChevronDown, Check
 } from "lucide-react";
+import { tx } from "@/lib/money";
 
 function normalizeKenyaPhone(raw: string): string {
   const digits = raw.replace(/\D/g, "");
@@ -298,7 +299,7 @@ export function SocialBoosting() {
       const res = await placeBoostOrder({ serviceId: selected.id, link: link.trim(), quantity: qtyNum });
       if (res.error) {
         if (res.code === "INSUFFICIENT_COINS") {
-          showToast(`Not enough TX. You need ${res.requiredTx} TX for this order.`, "error");
+          showToast(`Not enough balance. You need ${tx(res.requiredTx)} for this order.`, "error");
           localStorage.setItem("pendingBoostOrder", JSON.stringify({ serviceId: selected.id, link: link.trim(), quantity: qtyNum }));
           navigateWithLoader(`/topup?required=${res.requiredTx}`);
         } else {
@@ -493,7 +494,7 @@ export function SocialBoosting() {
             <div className="flex-1" />
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
               <Coins className="w-3.5 h-3.5 text-teal-400" />
-              {user.txCoins} TX
+              {tx(user.txCoins)}
             </div>
           </div>
         </div>
@@ -709,7 +710,7 @@ export function SocialBoosting() {
                         <a href={o.link} target="_blank" rel="noreferrer" className="text-xs text-muted-foreground truncate flex items-center gap-1 hover:underline">
                           <span className="truncate">{o.link}</span> <ExternalLink className="w-3 h-3 shrink-0" />
                         </a>
-                        <p className="text-xs text-muted-foreground mt-1">{o.quantity} qty · {o.costTx} TX</p>
+                        <p className="text-xs text-muted-foreground mt-1">{o.quantity} qty · {tx(o.costTx)}</p>
                       </div>
                       <div className="flex flex-col items-end gap-1.5 shrink-0">
                         <StatusBadge status={o.status} />
@@ -785,7 +786,7 @@ export function SocialBoosting() {
             {isModerator ? (
               <Button className="w-full gap-2 bg-gradient-to-r from-teal-600 to-orange-600 hover:from-teal-700 hover:to-orange-700 text-white border-0" disabled={placing || !qtyValid || !link.trim()} onClick={handlePlaceOrder}>
                 {placing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                {hasEnoughTx ? "Continue and pay with TX" : "Continue to payment"}
+                {hasEnoughTx ? "Continue and pay from balance" : "Continue to payment"}
               </Button>
             ) : (
               <Button className="w-full gap-2 bg-gradient-to-r from-teal-600 to-orange-600 hover:from-teal-700 hover:to-orange-700 text-white border-0" disabled={placing || !qtyValid || !link.trim()} onClick={handleStartDirectPay}>
