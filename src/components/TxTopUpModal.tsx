@@ -10,10 +10,10 @@ interface TxTopUpModalProps {
 
 export function TxTopUpModal({ isOpen, onClose, requiredTx, onSuccess }: TxTopUpModalProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Buy TX without leaving" maxWidth="max-w-xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Add funds without leaving" maxWidth="max-w-xl">
       <div className="space-y-3 p-1 max-h-[70vh] overflow-y-auto">
         <p className="text-xs text-muted-foreground">
-          Choose your country and pay. When payment confirms, your TX balance updates automatically so you can deploy right away.
+          Choose your country and pay. When payment confirms, your balance updates automatically so you can deploy right away.
         </p>
         <TopUpFlow
           compact
