@@ -15,6 +15,7 @@ import {
   ArrowLeft, UserCircle, Mail, Coins, LogOut,
   Shield, Copy, Check, Pencil, X, Palette, Trash2, AlertTriangle, Globe
 } from "lucide-react";
+import { tx } from "@/lib/money";
 
 type AccentColor = "violet" | "red" | "blue" | "green" | "orange" | "pink" | "teal" | "yellow" | "rose" | "indigo" | "cyan" | "amber";
 
@@ -232,8 +233,8 @@ export function Profile() {
                 <Coins className="w-4 h-4 text-yellow-400" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">TX Balance</p>
-                <p className="text-lg font-bold text-teal-400">{user.txCoins} TX</p>
+                <p className="text-xs text-muted-foreground">Balance</p>
+                <p className="text-lg font-bold text-teal-400">{tx(user.txCoins)}</p>
               </div>
             </div>
             <Button size="sm" onClick={() => navigateWithLoader("/topup")} className="bg-teal-600 hover:bg-teal-700 text-white">
