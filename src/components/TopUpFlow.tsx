@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/useToast";
 import { Modal } from "@/components/Modal";
 import { getPackages, getMobileChargeStatus, initiatePayment, verifyPayment, initiatePaymentNg, getPaymentsConfig } from "@/lib/api";
 import { ArrowLeft, Coins, Loader2, Check, Minus, Plus, Copy, CheckCheck, Wallet } from "lucide-react";
+import { tx, countryForCurrency, getMoneyCurrency } from "@/lib/money";
 
 interface Package {
   _id: string;
@@ -83,6 +84,7 @@ function TanzaniaPaymentModal({
   const [isProcessing, setIsProcessing] = useState(false);
   const [phone, setPhone] = useState("");
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const total = pkg ? pkg.txAmount + pkg.bonusTx : 0;
 
   useEffect(() => {
     if (!isOpen) {
@@ -144,7 +146,6 @@ function TanzaniaPaymentModal({
   };
 
   if (!isOpen || !pkg) return null;
-  const total = pkg.txAmount + pkg.bonusTx;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Tanzania Mobile Payment">
@@ -153,7 +154,7 @@ function TanzaniaPaymentModal({
           <>
             <div className="p-4 rounded-xl border border-sky-500/20 bg-sky-500/5">
               <p className="text-sm font-medium text-sky-300 mb-1">{pkg.name}</p>
-              <p className="text-2xl font-bold text-sky-400">{total} TX</p>
+              <p className="text-2xl font-bold text-sky-400">{tx(total)}</p>
               <p className="text-sm text-muted-foreground">TZS {pkg.tzsPrice.toLocaleString()}</p>
             </div>
             <div className="space-y-1.5">
@@ -194,7 +195,7 @@ function TanzaniaPaymentModal({
               <Check className="w-7 h-7 text-green-400" />
             </div>
             <p className="font-bold text-green-400">Payment successful!</p>
-            <p className="text-sm text-muted-foreground">{total} TX has been added to your account.</p>
+            <p className="text-sm text-muted-foreground">{tx(total)} has been added to your account.</p>
             <button onClick={onClose} className="mt-2 px-6 py-2 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors">Done</button>
           </div>
         )}
@@ -302,7 +303,7 @@ function NigeriaPaymentModal({
         onSuccess: async () => {
           try { await verifyPayment(ref); } catch {}
           setStage("success");
-          showToast(`Payment confirmed! ${totalTx} TX added.`, "success");
+          showToast(`Payment confirmed! ${tx(totalTx)} added.`, "success");
           onSuccess();
         },
         onLoad: () => {},
@@ -321,7 +322,7 @@ function NigeriaPaymentModal({
           </div>
           <div className="text-center">
             <p className="font-semibold text-lg text-green-400">Payment Confirmed!</p>
-            <p className="text-sm text-muted-foreground mt-1">{totalTx} TX has been added to your account.</p>
+            <p className="text-sm text-muted-foreground mt-1">{tx(totalTx)} has been added to your account.</p>
           </div>
           <button onClick={onClose} className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">Done</button>
         </div>
@@ -344,7 +345,7 @@ function NigeriaPaymentModal({
           <div className="p-3 rounded-lg bg-muted/50 border border-border">
             <div className="flex justify-between items-center text-sm">
               <span className="font-medium">{pkg.name}</span>
-              <span className="font-bold text-green-400">{totalTx} TX</span>
+              <span className="font-bold text-green-400">{tx(totalTx)}</span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
               🇳🇬 NGN {pkg.ngnPrice.toLocaleString()}
@@ -423,7 +424,7 @@ function PaymentModal({
       try {
         const data = await getMobileChargeStatus(reference) as { status?: string; txAmount?: number; error?: string };
         if (data.error) return;
-        if (data.status === "success") { clearInterval(interval); setStage("success"); showToast(`Payment confirmed! ${data.txAmount ?? 0} TX added.`, "success"); onSuccess(); return; }
+        if (data.status === "success") { clearInterval(interval); setStage("success"); showToast(`Payment confirmed! ${tx(data.txAmount ?? 0)} added.`, "success"); onSuccess(); return; }
         if (data.status === "failed") { clearInterval(interval); setStage("failed"); setFailReason("Payment failed. Please try again."); return; }
         if (data.status === "abandoned") { clearInterval(interval); setStage("failed"); setFailReason("Payment was abandoned."); return; }
         if (data.status === "cancelled") { clearInterval(interval); setStage("failed"); setFailReason("Payment was cancelled."); return; }
@@ -486,7 +487,7 @@ function PaymentModal({
           currency: "KES",
           ref,
           channels: ["card"],
-          onSuccess: async () => { try { await verifyPayment(ref); } catch {} setStage("success"); showToast(`Payment confirmed! ${totalTx} TX added.`, "success"); onSuccess(); },
+          onSuccess: async () => { try { await verifyPayment(ref); } catch {} setStage("success"); showToast(`Payment confirmed! ${tx(totalTx)} added.`, "success"); onSuccess(); },
           onCancel: () => { setStage("failed"); setFailReason("Card payment was cancelled."); },
           onError: () => { setStage("failed"); setFailReason("Card payment encountered an error. Please try again."); }
         });
@@ -498,7 +499,7 @@ function PaymentModal({
         setLoading(false);
         const instance = new paystackPop();
         instance.resumeTransaction(accessCode, {
-          onSuccess: async () => { try { await verifyPayment(ref); } catch {} setStage("success"); showToast(`Payment confirmed! ${totalTx} TX added.`, "success"); onSuccess(); },
+          onSuccess: async () => { try { await verifyPayment(ref); } catch {} setStage("success"); showToast(`Payment confirmed! ${tx(totalTx)} added.`, "success"); onSuccess(); },
           onLoad: () => {},
           onCancel: () => { setStage("failed"); setFailReason("Apple Pay payment was cancelled."); },
           onError: () => { setStage("failed"); setFailReason("Apple Pay encountered an error. Please try again."); }
@@ -526,7 +527,7 @@ function PaymentModal({
           </div>
           <div className="text-center">
             <p className="font-semibold text-lg text-green-400">Payment Confirmed!</p>
-            <p className="text-sm text-muted-foreground mt-1">{totalTx} TX has been added to your account.</p>
+            <p className="text-sm text-muted-foreground mt-1">{tx(totalTx)} has been added to your account.</p>
           </div>
           <button onClick={onClose} className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">Done</button>
         </div>
@@ -561,7 +562,7 @@ function PaymentModal({
           <div className="p-3 rounded-lg bg-muted/50 border border-border">
             <div className="flex justify-between items-center text-sm">
               <span className="font-medium">{pkg.name}</span>
-              <span className="font-bold text-teal-400">{totalTx} TX</span>
+              <span className="font-bold text-teal-400">{tx(totalTx)}</span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">KES {pkg.ksPrice}{currency !== "KES" && <span className="text-muted-foreground/60"> ≈ {format(pkg.ksPrice)}</span>}</p>
           </div>
@@ -709,6 +710,8 @@ const COLOR_MAP: Record<string, { border: string; bg: string; text: string; badg
   blue:   { border: "border-blue-500/25",   bg: "bg-blue-500/5",   text: "text-blue-400",   badge: "bg-blue-500/15 text-blue-400" },
 };
 
+const PAYPAL_EMAIL = (import.meta.env.VITE_MANUAL_PAYPAL_EMAIL as string) || "";
+
 function PayPalProofModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { showToast } = useToast();
   const [email, setEmail] = useState("");
@@ -727,7 +730,7 @@ function PayPalProofModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
       return;
     }
     const amount = parseInt(txAmount, 10);
-    if (isNaN(amount) || amount < 1) { showToast("Enter a valid TX amount", "error"); return; }
+    if (isNaN(amount) || amount < 1) { showToast("Enter a valid amount", "error"); return; }
     setSending(true);
     try {
       const res = await fetch("/api/payments/notify-paypal-proof", {
@@ -753,13 +756,13 @@ function PayPalProofModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
               <Check className="w-7 h-7 text-green-400" />
             </div>
             <p className="font-bold text-green-400">Proof submitted!</p>
-            <p className="text-sm text-muted-foreground">We've received your details. Your TX will be credited after we verify the payment. This usually takes a few minutes.</p>
+            <p className="text-sm text-muted-foreground">We've received your details. Your payment will be credited after we verify the payment. This usually takes a few minutes.</p>
             <button onClick={onClose} className="mt-2 px-6 py-2 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors">Done</button>
           </div>
         ) : (
           <>
             <div className="p-3 rounded-xl border border-blue-500/20 bg-blue-500/5 text-xs text-blue-300 leading-relaxed">
-              Pay <span className="font-bold">rtxclinton@gmail.com</span> on PayPal, then fill in the details below. We'll verify and credit your TX coins.
+              Pay <span className="font-bold">{PAYPAL_EMAIL}</span> on PayPal, then fill in the details below. We'll verify and credit your balance.
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Your account email (on Bmb Tech Hosting)</label>
@@ -767,7 +770,7 @@ function PayPalProofModal({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                 className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm outline-none focus:border-blue-500/60" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-muted-foreground">TX amount you expect to receive</label>
+              <label className="text-xs font-medium text-muted-foreground">Amount you expect to receive (credits)</label>
               <input type="number" inputMode="numeric" min="1" placeholder="e.g. 50" value={txAmount} onChange={e => setTxAmount(e.target.value)}
                 className="w-full px-3 py-2.5 rounded-xl border border-border bg-background text-sm outline-none focus:border-blue-500/60" />
             </div>
@@ -804,7 +807,7 @@ function ManualPaySection() {
         <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted text-muted-foreground">Fallback</span>
       </div>
       <p className="text-sm text-muted-foreground mb-5 ml-9.5">
-        If automatic payment isn't working, send manually using any method below then send us your receipt to get your TX credited.
+        If automatic payment isn't working, send manually using any method below then send us your receipt to get your balance credited.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {MANUAL_METHODS.filter(m => !!m.value).map(m => {
@@ -832,6 +835,7 @@ function ManualPaySection() {
             </div>
           );
         })}
+        {PAYPAL_EMAIL && (
         <div className="rounded-xl border p-4 border-blue-500/25 bg-blue-500/5 flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -842,17 +846,17 @@ function ManualPaySection() {
           </div>
           <div className="flex items-center gap-2">
             <div className="flex-1 min-w-0">
-              <p className="font-mono font-bold text-base tracking-wide text-foreground truncate">rtxclinton@gmail.com</p>
-              <p className="text-xs text-muted-foreground mt-0.5">rtxclinton</p>
+              <p className="font-mono font-bold text-base tracking-wide text-foreground truncate">{PAYPAL_EMAIL}</p>
             </div>
-            <CopyButton value="rtxclinton@gmail.com" />
+            <CopyButton value={PAYPAL_EMAIL} />
           </div>
-          <p className="text-xs text-muted-foreground leading-relaxed border-t border-border/40 pt-2.5">Send payment to this PayPal email, then submit your receipt and details below so we can credit your TX.</p>
+          <p className="text-xs text-muted-foreground leading-relaxed border-t border-border/40 pt-2.5">Send payment to this PayPal email, then submit your receipt and details below so we can credit your balance.</p>
           <button onClick={() => setPaypalProofOpen(true)}
             className="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors">
             Submit Payment Proof
           </button>
         </div>
+        )}
       </div>
       <a
         href="/contact"
@@ -861,7 +865,7 @@ function ManualPaySection() {
         Send Proof of Payment
       </a>
       <p className="mt-2 text-xs text-center text-muted-foreground">
-        Reach us via the Contact &amp; Support page with your receipt and account email to get your TX credited.
+        Reach us via the Contact &amp; Support page with your receipt and account email to get your balance credited.
       </p>
       <PayPalProofModal isOpen={paypalProofOpen} onClose={() => setPaypalProofOpen(false)} />
     </div>
@@ -900,7 +904,7 @@ function CustomTxModal({ isOpen, onClose, userEmail, onSuccess }: { isOpen: bool
       if (count >= 40) { clearInterval(interval); setStage("failed"); setFailReason("Payment timed out."); return; }
       try {
         const data = await getMobileChargeStatus(reference) as { status?: string; txAmount?: number; error?: string };
-        if (data.status === "success") { clearInterval(interval); setStage("success"); showToast(`${data.txAmount ?? txAmount} TX added!`, "success"); onSuccess(); return; }
+        if (data.status === "success") { clearInterval(interval); setStage("success"); showToast(`${tx(data.txAmount ?? txAmount)} added!`, "success"); onSuccess(); return; }
         if (["failed", "abandoned", "cancelled"].includes(data.status || "")) { clearInterval(interval); setStage("failed"); setFailReason("Payment failed. Please try again."); return; }
       } catch {}
     }, 3000);
@@ -960,7 +964,7 @@ function CustomTxModal({ isOpen, onClose, userEmail, onSuccess }: { isOpen: bool
           currency: "KES",
           ref,
           channels: ["card"],
-          onSuccess: async () => { try { await verifyPayment(ref); } catch {} setStage("success"); showToast(`${txAmount} TX added!`, "success"); onSuccess(); },
+          onSuccess: async () => { try { await verifyPayment(ref); } catch {} setStage("success"); showToast(`${tx(txAmount)} added!`, "success"); onSuccess(); },
           onCancel: () => { setStage("failed"); setFailReason("Card payment was cancelled."); },
           onError: () => { setStage("failed"); setFailReason("Card payment encountered an error. Please try again."); }
         });
@@ -976,7 +980,7 @@ function CustomTxModal({ isOpen, onClose, userEmail, onSuccess }: { isOpen: bool
         setLoading(false);
         const instance = new paystackPop();
         instance.resumeTransaction(accessCode, {
-          onSuccess: async () => { try { await verifyPayment(ref); } catch {} setStage("success"); showToast(`${txAmount} TX added!`, "success"); onSuccess(); },
+          onSuccess: async () => { try { await verifyPayment(ref); } catch {} setStage("success"); showToast(`${tx(txAmount)} added!`, "success"); onSuccess(); },
           onLoad: () => {},
           onCancel: () => { setStage("failed"); setFailReason("Apple Pay payment was cancelled."); },
           onError: () => { setStage("failed"); setFailReason("Apple Pay encountered an error. Please try again."); }
@@ -993,13 +997,13 @@ function CustomTxModal({ isOpen, onClose, userEmail, onSuccess }: { isOpen: bool
   ];
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Custom TX Purchase" maxWidth="max-w-lg">
+    <Modal isOpen={isOpen} onClose={onClose} title="Custom Top Up" maxWidth="max-w-lg">
       {stage === "success" ? (
         <div className="flex flex-col items-center gap-4 py-6">
           <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center"><Check className="w-8 h-8 text-green-400" /></div>
           <div className="text-center">
             <p className="font-semibold text-lg text-green-400">Payment Confirmed!</p>
-            <p className="text-sm text-muted-foreground mt-1">{txAmount} TX added to your balance.</p>
+            <p className="text-sm text-muted-foreground mt-1">{tx(txAmount)} added to your balance.</p>
           </div>
           <button onClick={onClose} className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">Done</button>
         </div>
@@ -1023,7 +1027,7 @@ function CustomTxModal({ isOpen, onClose, userEmail, onSuccess }: { isOpen: bool
       ) : (
         <div className="space-y-4">
           <div className="p-4 rounded-xl border border-border bg-muted/30">
-            <p className="text-xs text-muted-foreground mb-2">How many TX do you want?</p>
+            <p className="text-xs text-muted-foreground mb-2">How many credits do you want?</p>
             <div className="flex items-center justify-between gap-3">
               <button onClick={() => setTxAmount(v => Math.max(TX_MIN, v - 1))} className="w-9 h-9 rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors"><Minus className="w-4 h-4" /></button>
               <div className="flex-1 text-center">
@@ -1036,7 +1040,7 @@ function CustomTxModal({ isOpen, onClose, userEmail, onSuccess }: { isOpen: bool
                   min={TX_MIN}
                   className="w-full text-center text-3xl font-bold text-teal-400 bg-transparent border-none outline-none focus:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
-                <p className="text-xs text-muted-foreground">TX Coins</p>
+                <p className="text-xs text-muted-foreground">Credits</p>
               </div>
               <button onClick={() => setTxAmount(v => v + 1)} className="w-9 h-9 rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors"><Plus className="w-4 h-4" /></button>
             </div>
@@ -1166,7 +1170,7 @@ function OtherCountryPaymentModal({
         onSuccess: async () => {
           try { await verifyPayment(ref); } catch {}
           setStage("success");
-          showToast(`Payment confirmed! ${totalTx} TX added.`, "success");
+          showToast(`Payment confirmed! ${tx(totalTx)} added.`, "success");
           onSuccess();
         },
         onCancel: () => { setStage("failed"); setFailReason("Payment was cancelled."); },
@@ -1184,7 +1188,7 @@ function OtherCountryPaymentModal({
           </div>
           <div className="text-center">
             <p className="font-semibold text-lg text-green-400">Payment Confirmed!</p>
-            <p className="text-sm text-muted-foreground mt-1">{totalTx} TX has been added to your account.</p>
+            <p className="text-sm text-muted-foreground mt-1">{tx(totalTx)} has been added to your account.</p>
           </div>
           <button onClick={onClose} className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">Done</button>
         </div>
@@ -1207,7 +1211,7 @@ function OtherCountryPaymentModal({
           <div className="p-3 rounded-lg bg-muted/50 border border-border">
             <div className="flex justify-between items-center text-sm">
               <span className="font-medium">{pkg.name}</span>
-              <span className="font-bold text-blue-400">{totalTx} TX</span>
+              <span className="font-bold text-blue-400">{tx(totalTx)}</span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">${(pkg.txAmount * USD_PER_TX).toFixed(2)} USD</p>
           </div>
@@ -1258,7 +1262,7 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
   const [ngModalOpen, setNgModalOpen] = useState(false);
   const [customModalOpen, setCustomModalOpen] = useState(false);
   const [otherMethodModalOpen, setOtherMethodModalOpen] = useState(false);
-  const [country, setCountry] = useState<"kenya" | "nigeria" | "tanzania" | "other" | null>(null);
+  const [country, setCountry] = useState<"kenya" | "nigeria" | "tanzania" | "other" | null>(() => countryForCurrency(getMoneyCurrency()));
   const [_nigeriaAvailable, setNigeriaAvailable] = useState(false);
   const [tzModalOpen, setTzModalOpen] = useState(false);
   const [selectedTzPkg, setSelectedTzPkg] = useState<TanzaniaPackage | null>(null);
@@ -1286,14 +1290,14 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
     <div className={compact ? "space-y-4" : "space-y-4"}>
         {requiredTx != null && requiredTx > 0 && (
           <div className="p-3.5 rounded-lg border border-teal-500/30 bg-teal-500/5 text-sm">
-            You need at least <span className="font-semibold">{requiredTx} TX</span> to continue. Pay here — your balance updates automatically after payment.
+            You need at least <span className="font-semibold">{tx(requiredTx)}</span> to continue. Pay here — your balance updates automatically after payment.
           </div>
         )}
         {user && (
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border border-border w-fit">
             <Coins className="w-4 h-4 text-yellow-400" />
             <span className="text-xs text-muted-foreground">Balance</span>
-            <span className="font-semibold text-sm">{user.txCoins} TX</span>
+            <span className="font-semibold text-sm">{tx(user.txCoins)}</span>
           </div>
         )}
 
@@ -1362,7 +1366,6 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
                 </div>
                 <div className="grid gap-3">
                   {packages.map(pkg => {
-                    const total = pkg.txAmount + pkg.bonusTx;
                     return (
                       <div key={pkg._id + "-other"}
                         className={`relative w-full p-4 rounded-xl border transition-all hover:border-blue-500/40 hover:bg-blue-500/5 ${pkg.isBestDeal ? "border-blue-500/50 bg-blue-500/5" : "border-border bg-card/50"}`}>
@@ -1372,12 +1375,10 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="font-semibold">{pkg.name}</p>
-                            <p className="text-sm text-muted-foreground mt-0.5">
-                              {pkg.txAmount} TX{pkg.bonusTx > 0 ? ` + ${pkg.bonusTx} bonus` : ""}
-                            </p>
+                            {pkg.bonusTx > 0 && (<p className="text-xs text-emerald-400 mt-0.5">Includes +{tx(pkg.bonusTx)} bonus</p>)}
                           </div>
                           <div className="text-right">
-                            <p className="text-xl font-bold text-blue-400">{total} TX</p>
+                            <p className="text-xl font-bold text-blue-400">{tx(pkg.txAmount)}</p>
                             <p className="text-sm text-muted-foreground">${(pkg.txAmount * USD_PER_TX).toFixed(2)} USD</p>
                           </div>
                         </div>
@@ -1408,7 +1409,6 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
             </div>
             <div className="grid gap-3">
               {TANZANIA_PACKAGES.map(pkg => {
-                const total = pkg.txAmount + pkg.bonusTx;
                 return (
                   <div key={pkg.id}
                     className={`relative w-full p-4 rounded-xl border transition-all hover:border-sky-500/40 hover:bg-sky-500/5 ${pkg.isBestDeal ? "border-sky-500/50 bg-sky-500/5" : "border-border bg-card/50"}`}>
@@ -1418,12 +1418,10 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-semibold">{pkg.name}</p>
-                        <p className="text-sm text-muted-foreground mt-0.5">
-                          {pkg.txAmount} TX{pkg.bonusTx > 0 ? ` + ${pkg.bonusTx} bonus` : ""}
-                        </p>
+                        {pkg.bonusTx > 0 && (<p className="text-xs text-emerald-400 mt-0.5">Includes +{tx(pkg.bonusTx)} bonus</p>)}
                       </div>
                       <div className="text-right">
-                        <p className="text-xl font-bold text-sky-400">{total} TX</p>
+                        <p className="text-xl font-bold text-sky-400">{tx(pkg.txAmount)}</p>
                         <p className="text-sm text-muted-foreground">TZS {pkg.tzsPrice.toLocaleString()}</p>
                       </div>
                     </div>
@@ -1449,7 +1447,6 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
             </div>
             <div className="grid gap-3">
               {NIGERIA_PACKAGES.map(pkg => {
-                const total = pkg.txAmount + pkg.bonusTx;
                 return (
                   <div key={pkg.id}
                     className={`relative w-full p-4 rounded-xl border transition-all hover:border-green-500/40 hover:bg-green-500/5 ${pkg.isBestDeal ? "border-green-500/50 bg-green-500/5" : "border-border bg-card/50"}`}>
@@ -1459,12 +1456,10 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-semibold">{pkg.name}</p>
-                        <p className="text-sm text-muted-foreground mt-0.5">
-                          {pkg.txAmount} TX{pkg.bonusTx > 0 ? ` + ${pkg.bonusTx} bonus` : ""}
-                        </p>
+                        {pkg.bonusTx > 0 && (<p className="text-xs text-emerald-400 mt-0.5">Includes +{tx(pkg.bonusTx)} bonus</p>)}
                       </div>
                       <div className="text-right">
-                        <p className="text-xl font-bold text-green-400">{total} TX</p>
+                        <p className="text-xl font-bold text-green-400">{tx(pkg.txAmount)}</p>
                         <p className="text-sm text-muted-foreground">NGN {pkg.ngnPrice.toLocaleString()}</p>
                       </div>
                     </div>
@@ -1494,7 +1489,6 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
               <div className="space-y-6">
                 <div className="grid gap-3">
                   {packages.map(pkg => {
-                    const total = pkg.txAmount + pkg.bonusTx;
                     return (
                       <div key={pkg._id}
                         className={`relative w-full p-4 rounded-xl border transition-all hover:border-teal-500/40 hover:bg-teal-500/5 ${pkg.isBestDeal ? "border-teal-500/50 bg-teal-500/5" : "border-border bg-card/50"}`}>
@@ -1504,12 +1498,10 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="font-semibold">{pkg.name}</p>
-                            <p className="text-sm text-muted-foreground mt-0.5">
-                              {pkg.txAmount} TX{pkg.bonusTx > 0 ? ` + ${pkg.bonusTx} bonus` : ""}
-                            </p>
+                            {pkg.bonusTx > 0 && (<p className="text-xs text-emerald-400 mt-0.5">Includes +{tx(pkg.bonusTx)} bonus</p>)}
                           </div>
                           <div className="text-right">
-                            <p className="text-xl font-bold text-teal-400">{total} TX</p>
+                            <p className="text-xl font-bold text-teal-400">{tx(pkg.txAmount)}</p>
                             <p className="text-sm text-muted-foreground">KES {pkg.ksPrice}{currency !== "KES" && ` ≈ ${format(pkg.ksPrice)}`}</p>
                           </div>
                         </div>
@@ -1528,7 +1520,7 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-semibold">Custom Amount</p>
-                      <p className="text-sm text-muted-foreground">Choose exactly how many TX you need</p>
+                      <p className="text-sm text-muted-foreground">Choose exactly how many credits you need</p>
                     </div>
                     <button onClick={() => setCustomModalOpen(true)}
                       className="px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-sm font-medium transition-colors border border-border">
