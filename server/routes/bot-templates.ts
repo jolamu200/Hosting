@@ -9,6 +9,8 @@ import { User } from "../models/User.js";
 import type { Request, Response, NextFunction } from "express";
 import type { IUser } from "../models/User.js";
 import { ADMIN_EMAIL } from "../config.js";
+import { authGuard, type AuthRequest } from "../middleware/auth.js";
+import { getRepoCard, parseRepoRef, validateDeployableRepo } from "../services/github.js";
 
 const router = Router();
 
@@ -29,7 +31,7 @@ async function adminAuth(req: AdminReq, res: Response, next: NextFunction) {
 
 router.get("/", sessionOrApiKeyGuard, banCheck, async (_req, res) => {
   try {
-    const templates = await BotTemplate.find({ active: true }).sort({ isDefault: -1, order: 1, createdAt: 1 }).lean();
+    const templates = await BotTemplate.find({ active: true, custom: { $ne: true } }).sort({ isDefault: -1, order: 1, createdAt: 1 }).lean();
     const templateIds = templates.map(t => t._id.toString());
     const counts = await Bot.aggregate([
       { $match: { templateId: { $in: templateIds }, status: { $ne: "deleted" } } },
@@ -37,7 +39,55 @@ router.get("/", sessionOrApiKeyGuard, banCheck, async (_req, res) => {
     ]);
     const countMap: Record<string, number> = {};
     for (const c of counts) countMap[c._id] = c.count;
-    res.json(templates.map(t => ({ ...t, deployCount: countMap[t._id.toString()] || 0 })));
+    const infos = await Promise.all(templates.map(t => {
+      const ref = parseRepoRef(t.githubRepo || "");
+      return ref ? getRepoCard(ref.owner, ref.repo).catch(() => null) : Promise.resolve(null);
+    }));
+    const topCount = Math.max(0, ...templates.map(t => countMap[t._id.toString()] || 0));
+    res.json(templates.map((t, i) => {
+      const deployCount = countMap[t._id.toString()] || 0;
+      return {
+        ...t,
+        deployCount,
+        stars: infos[i]?.stars ?? 0,
+        forks: infos[i]?.forks ?? 0,
+        language: infos[i]?.language || "",
+        popular: topCount >= 3 && deployCount === topCount,
+      };
+    }));
+  } catch { res.status(500).json({ error: "Server error" }); }
+});
+
+// Deploy any public GitHub repo (must contain app.json). Creates a private, non-listed template.
+router.post("/custom", authGuard, banCheck, async (req: AuthRequest, res) => {
+  try {
+    if ((process.env.ALLOW_CUSTOM_REPOS || "true").toLowerCase() === "false") {
+      res.status(403).json({ error: "Deploying custom repositories is disabled." }); return;
+    }
+    const ref = parseRepoRef(String(req.body?.githubRepo || req.body?.repo || ""));
+    if (!ref) { res.status(400).json({ error: "Enter a valid GitHub repository." }); return; }
+    const checked = await validateDeployableRepo(ref.owner, ref.repo);
+    if (!checked.ok) { res.status(400).json({ error: checked.error }); return; }
+    const { card, logo } = checked.value;
+    const githubRepo = card.url;
+
+    const existing = await BotTemplate.findOne({ githubRepo, custom: true, active: true }).lean();
+    if (existing) { res.json({ ok: true, slug: existing.shareableSlug }); return; }
+
+    const template = await BotTemplate.create({
+      name: card.name,
+      githubRepo,
+      sessionIdUrl: githubRepo,
+      imageUrl: logo || card.avatar,
+      shareableSlug: makeSlug(card.name),
+      costTx: 10,
+      isDefault: false,
+      custom: true,
+      createdBy: String(req.user!._id),
+      active: true,
+      order: 9999,
+    });
+    res.json({ ok: true, slug: template.shareableSlug });
   } catch { res.status(500).json({ error: "Server error" }); }
 });
 
