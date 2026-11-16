@@ -4,6 +4,7 @@ export interface User {
       username?: string;
       txCoins: number;
       isBanned?: boolean;
+      banReason?: string;
       referralCode?: string;
       usedFreeTrial?: boolean;
       isModerator?: boolean;
@@ -25,6 +26,7 @@ export interface User {
       status: "building" | "running" | "stopped" | "expired" | "deleted";
       teamName: string;
       templateId?: string;
+      templateName?: string;
       isDefault?: boolean;
     }
 
