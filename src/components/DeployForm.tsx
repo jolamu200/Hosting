@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/useToast";
 import { useAuth } from "@/hooks/useAuth";
 import { TxTopUpModal } from "@/components/TxTopUpModal";
 import { Loader2, ExternalLink, Sparkles, Check, CreditCard, Smartphone, Apple } from "lucide-react";
+import { tx } from "@/lib/money";
 
 interface DeployFormProps {
   onDeploy: (appName?: string) => void;
@@ -77,7 +78,7 @@ export function DeployForm({ onDeploy, coinBalance, initialTrial = false }: Depl
         onDeploy(appName);
       } else {
         if (res.code === "INSUFFICIENT_COINS") {
-          showToast("Not enough TX — buy here without leaving this page", "error");
+          showToast("Not enough balance — add funds here without leaving this page", "error");
           setTopUpOpen(true);
         } else {
           showToast(res.error || "Failed to deploy bot", "error");
@@ -114,7 +115,7 @@ export function DeployForm({ onDeploy, coinBalance, initialTrial = false }: Depl
               FREE
             </span>
           </div>
-          <p className="text-xs mt-0.5 text-teal-300/80">No TX coins required · One-time per number · Available now!</p>
+          <p className="text-xs mt-0.5 text-teal-300/80">No payment required · One-time per number · Available now!</p>
         </div>
         <div className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${isTrial ? "bg-teal-500 border-teal-500" : "border-teal-500/50"}`}>
           {isTrial && <Check className="w-3 h-3 text-white" />}
@@ -196,21 +197,21 @@ export function DeployForm({ onDeploy, coinBalance, initialTrial = false }: Depl
         }`}>
           <div className="flex justify-between items-center">
             <span>Cost (1 month)</span>
-            <span className={`font-semibold ${insufficientBalance ? "text-red-400" : "text-foreground"}`}>{DEPLOY_COST} TX</span>
+            <span className={`font-semibold ${insufficientBalance ? "text-red-400" : "text-foreground"}`}>{tx(DEPLOY_COST)}</span>
           </div>
           <div className="flex justify-between items-center mt-1">
             <span>Your balance</span>
-            <span className={`font-semibold ${insufficientBalance ? "text-red-400" : "text-teal-400"}`}>{coinBalance} TX</span>
+            <span className={`font-semibold ${insufficientBalance ? "text-red-400" : "text-teal-400"}`}>{tx(coinBalance)}</span>
           </div>
           {insufficientBalance && (
             <div className="mt-2 space-y-1">
-              <p className="text-xs text-red-400">You need {DEPLOY_COST - coinBalance} more TX to deploy.</p>
+              <p className="text-xs text-red-400">You need {tx(DEPLOY_COST - coinBalance)} more to deploy.</p>
               <button
                 type="button"
                 onClick={() => setTopUpOpen(true)}
                 className="text-xs font-semibold text-teal-300 underline underline-offset-2"
               >
-                Tap here to buy TX directly without leaving this page
+                Tap here to add funds without leaving this page
               </button>
             </div>
           )}
@@ -230,10 +231,10 @@ export function DeployForm({ onDeploy, coinBalance, initialTrial = false }: Depl
         ) : insufficientBalance ? (
           <>
             <CreditCard className="w-4 h-4 mr-2" />
-            Tap to buy TX on this page
+            Tap to add funds on this page
           </>
         ) : (
-          isTrial ? "Deploy Free Trial" : `Deploy Bot — ${DEPLOY_COST} TX / month`
+          isTrial ? "Deploy Free Trial" : `Deploy Bot — ${tx(DEPLOY_COST)} / month`
         )}
       </Button>
 
@@ -244,7 +245,7 @@ export function DeployForm({ onDeploy, coinBalance, initialTrial = false }: Depl
         onSuccess={async () => {
           await refreshUser();
           setTopUpOpen(false);
-          showToast("TX balance updated — you can deploy now", "success");
+          showToast("Balance updated — you can deploy now", "success");
         }}
       />
     </div>
