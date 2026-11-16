@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { TechBackground } from "@/components/TechBackground";
 import { AppLogoIcon } from "@/components/AppLogo";
+import { tx } from "@/lib/money";
 
 function useTheme() {
   const [theme, setTheme] = useState<"dark" | "light">(() => {
@@ -181,7 +182,7 @@ export function Dashboard() {
 
   const navItems = [
     { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-    { label: "Top Up TX", icon: CreditCard, path: "/topup" },
+    { label: "Top Up", icon: CreditCard, path: "/topup" },
     { label: "Calculator", icon: Hash, path: "/calculator" },
     { label: "Docs", icon: BookOpen, path: "/docs" },
     { label: "Tutorials", icon: Youtube, path: "/tutorials" },
@@ -257,7 +258,7 @@ export function Dashboard() {
               <p className="text-sm font-semibold truncate">{user.username ? `@${user.username}` : user.email}</p>
               <div className="mt-2 flex items-center gap-1.5">
                 <Coins className="w-3.5 h-3.5 text-teal-400" />
-                <span className="text-sm font-bold text-teal-400">Balance: {user.txCoins} TX</span>
+                <span className="text-sm font-bold text-teal-400">Balance: {tx(user.txCoins)}</span>
               </div>
             </div>
           )}
@@ -436,9 +437,9 @@ export function Dashboard() {
               <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
                 <Coins className="w-4 h-4 text-green-400" />
               </div>
-              <span className="text-xs text-muted-foreground font-medium">TX Balance</span>
+              <span className="text-xs text-muted-foreground font-medium">Balance</span>
             </div>
-            <p className="text-2xl font-bold text-teal-400">{user.txCoins} TX</p>
+            <p className="text-2xl font-bold text-teal-400">{tx(user.txCoins)}</p>
             <span className="mt-2 inline-block text-xs text-green-400 font-medium">
               Top Up →
             </span>
@@ -629,7 +630,7 @@ export function Dashboard() {
                   const isCredit = t.type === "admin_grant" || t.type === "topup" || t.type === "refund";
                   const isFailed = t.status === "failed";
                   const isPending = t.status === "pending";
-                  const labelMap: Record<string, string> = { topup: "TX Top-Up", deploy: "Bot Deployed", renew: "Bot Renewed", admin_grant: "TX Granted", refund: "Refund", panel: "Panel Purchase" };
+                  const labelMap: Record<string, string> = { topup: "Top-Up", deploy: "Bot Deployed", renew: "Bot Renewed", admin_grant: "Credit Granted", refund: "Refund", panel: "Panel Purchase" };
                   const label = labelMap[t.type] ?? t.type.replace(/_/g, " ");
                   const sub = t.type === "topup" && t.ksAmount > 0 ? `KES ${t.ksAmount}` : t.type === "deploy" || t.type === "renew" ? "spent" : t.type === "admin_grant" ? "admin bonus" : "";
                   const iconEl = t.type === "deploy" || t.type === "renew"
@@ -655,7 +656,7 @@ export function Dashboard() {
                       </div>
                       <div className="flex flex-col items-end gap-0.5 shrink-0 ml-3">
                         <span className={`text-sm font-bold tabular-nums ${isFailed ? "text-muted-foreground line-through" : isCredit ? "text-green-400" : "text-red-400"}`}>
-                          {isCredit ? "+" : "-"}{Math.abs(t.txAmount)} TX
+                          {isCredit ? "+" : "-"}{tx(Math.abs(t.txAmount))}
                         </span>
                         {isPending && <span className="text-[10px] font-medium text-yellow-500">pending</span>}
                         {isFailed && <span className="text-[10px] font-medium text-red-500">failed</span>}
