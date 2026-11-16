@@ -3,9 +3,11 @@ import mongoose from "mongoose";
 const BotTemplateSchema = new mongoose.Schema({
   name: { type: String, required: true },
   githubRepo: { type: String, required: true },
-  sessionIdUrl: { type: String, required: true },
+  sessionIdUrl: { type: String, default: "" },
   imageUrl: { type: String, default: "" },
   isDefault: { type: Boolean, default: false },
+  custom: { type: Boolean, default: false },
+  createdBy: { type: String, default: "" },
   shareableSlug: { type: String, required: true, unique: true },
   costTx: { type: Number, default: 10 },
   active: { type: Boolean, default: true },
@@ -22,6 +24,8 @@ export interface IBotTemplate {
   sessionIdUrl: string;
   imageUrl: string;
   isDefault: boolean;
+  custom?: boolean;
+  createdBy?: string;
   shareableSlug: string;
   costTx: number;
   active: boolean;
