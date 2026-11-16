@@ -11,6 +11,7 @@ import paymentsRouter, { paystackWebhookHandler, ablinerWebhookHandler } from ".
 import adminRouter from "./routes/admin.js";
 import couponRouter from "./routes/coupons.js";
 import botTemplatesRouter from "./routes/bot-templates.js";
+import githubRouter from "./routes/github.js";
 import tutorialsRouter from "./routes/tutorials.js";
 import notificationsRouter from "./routes/notifications.js";
 import currencyRouter from "./routes/currency.js";
@@ -146,6 +147,7 @@ app.get("/api/settings/maintenance", async (_req, res) => {
   } catch { res.json({ maintenanceMode: false }); }
 });
 app.use("/api/bot-templates", botTemplatesRouter);
+app.use("/api/github", githubRouter);
 app.use("/api/tutorials", tutorialsRouter);
 app.use("/api/notifications", notificationsRouter);
 app.use("/api/currency", currencyRouter);
