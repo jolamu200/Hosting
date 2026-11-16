@@ -4,6 +4,7 @@ import { TechBackground } from "@/components/TechBackground";
 import { AppLogoFull } from "@/components/AppLogo";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavLoader } from "@/App";
+import { tx } from "@/lib/money";
 import {
   Bot, Zap, Shield, Clock, Coins, ArrowRight, CheckCircle2, Moon, Sun,
   Users, MessageCircle, BookOpen, Menu, X, TrendingUp, Code2, Terminal,
@@ -67,22 +68,22 @@ const bento = [
   { icon: Zap, title: "Live in minutes", desc: "Pick a bot, paste your session ID, press Deploy. No servers to set up, no commands to learn.", span: "md:col-span-2", tone: "primary" },
   { icon: Clock, title: "Always on", desc: "Your bot keeps running while you sleep.", span: "", tone: "plain" },
   { icon: Shield, title: "Isolated apps", desc: "Every bot gets its own app, so one failure never touches another.", span: "", tone: "plain" },
-  { icon: Wallet, title: "Pay how you live", desc: "Top up TX coins with mobile money, card or Apple Pay. 10 TX = 1 month of hosting.", span: "md:col-span-2", tone: "amber" },
-  { icon: Users, title: "Referral rewards", desc: "Earn TX coins when friends join with your link.", span: "", tone: "plain" },
+  { icon: Wallet, title: "Pay how you live", desc: "Top up with mobile money, card or Apple Pay. Every price is shown in your own currency.", span: "md:col-span-2", tone: "amber" },
+  { icon: Users, title: "Referral rewards", desc: "Earn rewards when friends join with your link.", span: "", tone: "plain" },
   { icon: BookOpen, title: "Guides included", desc: "Step-by-step docs and video tutorials for every feature.", span: "", tone: "plain" },
 ];
 
 const steps = [
   { icon: Users, title: "Create your account", desc: "Sign up with Google, GitHub or a one-click email link." },
-  { icon: Coins, title: "Add TX coins", desc: "Top up in seconds with mobile money or card." },
+  { icon: Coins, title: "Add funds", desc: "Top up in seconds with mobile money or card." },
   { icon: Rocket, title: "Deploy your bot", desc: "Choose a template, paste your session ID and go live." },
 ];
 
-const faqs = [
-  { q: "How much does it cost?", a: "Bot hosting starts at 10 TX per month. You buy TX coins in your local currency and spend them on any service." },
+const getFaqs = () => [
+  { q: "How much does it cost?", a: `Bot hosting starts at ${tx(10)} per month. You add funds in your own currency and spend them on any service.` },
   { q: "How long does a deployment take?", a: "Usually a few minutes from pressing Deploy to your bot answering on WhatsApp." },
   { q: "Which payment methods are supported?", a: "Mobile money (M-Pesa, Airtel, Tigo, Vodacom, MTN and more), cards, Apple Pay and bank transfer, depending on your country." },
-  { q: "What happens when my plan expires?", a: "You get a reminder before it ends and a short grace period. Renew with TX coins to keep the same bot running." },
+  { q: "What happens when my plan expires?", a: "You get a reminder before it ends and a short grace period. Renew from your balance to keep the same bot running." },
 ];
 
 function TerminalCard() {
@@ -113,7 +114,7 @@ function TerminalCard() {
           <span className="inline-block w-2 h-4 bg-primary align-middle" style={{ animation: "bmb-caret 1s steps(1) infinite" }} />
         </div>
         <div className="grid grid-cols-3 divide-x divide-border border-t border-border text-center">
-          {[["10 TX", "per month"], ["24/7", "uptime"], ["~4 min", "to go live"]].map(([a, b]) => (
+          {[[tx(10), "per month"], ["24/7", "uptime"], ["~4 min", "to go live"]].map(([a, b]) => (
             <div key={a} className="py-3">
               <p className="font-display font-bold text-sm">{a}</p>
               <p className="text-[11px] text-muted-foreground">{b}</p>
@@ -292,8 +293,8 @@ export default function Home() {
             <div className="h-full rounded-2xl border border-border bg-card p-8 flex flex-col">
               <Bot className="w-7 h-7 text-primary" />
               <h3 className="font-display text-2xl font-bold mt-4">Bot hosting</h3>
-              <p className="text-muted-foreground mt-2 leading-relaxed">Pick a ready-made WhatsApp bot, add your session ID and deploy. Renew with TX coins whenever you like.</p>
-              <p className="mt-6"><span className="font-display text-5xl font-extrabold bmb-gradient-text">10 TX</span> <span className="text-muted-foreground">/ month</span></p>
+              <p className="text-muted-foreground mt-2 leading-relaxed">Pick a ready-made WhatsApp bot, add your session ID and deploy. Renew from your balance whenever you like.</p>
+              <p className="mt-6"><span className="font-display text-5xl font-extrabold bmb-gradient-text">{tx(10)}</span> <span className="text-muted-foreground">/ month</span></p>
               <ul className="mt-5 space-y-2 text-sm">
                 {["Up to 9 months per deployment", "Live logs and restart controls", "Reminders before expiry"].map(t => (
                   <li key={t} className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" />{t}</li>
@@ -321,7 +322,7 @@ export default function Home() {
         <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-20">
           <Reveal><SectionTitle eyebrow="FAQ" title="Questions, answered" /></Reveal>
           <div className="divide-y divide-border rounded-2xl border border-border bg-card">
-            {faqs.map((f, i) => (
+            {getFaqs().map((f, i) => (
               <div key={f.q}>
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between gap-4 text-left px-5 py-4 font-semibold">
                   {f.q}
