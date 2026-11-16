@@ -18,8 +18,8 @@ import {
   MessageCircle, ChevronRight, ChevronLeft, ArrowRight, Moon, Sun, Server,
   Youtube, Hash, TrendingUp, Code2, Search, LayoutGrid, Trash2, HelpCircle,
   Radio, Share2,
-  type LucideIcon,
 } from "lucide-react";
+import type { ComponentType } from "react";
 import { TechBackground } from "@/components/TechBackground";
 import { AppLogoIcon } from "@/components/AppLogo";
 import { tx } from "@/lib/money";
@@ -27,6 +27,8 @@ import { tx } from "@/lib/money";
 /* ------------------------------------------------------------------ */
 /* Helpers                                                              */
 /* ------------------------------------------------------------------ */
+
+type LucideIcon = ComponentType<{ className?: string; strokeWidth?: number }>;
 
 const CHANNEL_URL = "https://whatsapp.com/channel/0029VawO6hgF6sn7k3SuVU3z";
 const VISIT_KEY = "dash_visits_v1";
