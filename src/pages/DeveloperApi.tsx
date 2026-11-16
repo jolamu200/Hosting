@@ -158,7 +158,7 @@ export function DeveloperApi() {
   ];
 
   const botEndpoints: EndpointDoc[] = [
-    { method: "POST", path: "/api/v1/bots/deploy-template", desc: "Deploy a bot from a template. Debits TX from your balance. months is 1-9 (defaults to 1); total cost is the template's TX rate × months.", body: '{"botTemplateId":"<id>","botName":"mybot","sessionVar":"<session>","months":1}' },
+    { method: "POST", path: "/api/v1/bots/deploy-template", desc: "Deploy a bot from a template. Debits your balance. months is 1-9 (defaults to 1); total cost is the template's monthly price × months.", body: '{"botTemplateId":"<id>","botName":"mybot","sessionVar":"<session>","months":1}' },
     { method: "GET", path: "/api/v1/bots", desc: "List all bots on your account." },
     { method: "POST", path: "/api/v1/bots/:id/stop", desc: "Stop a running bot." },
     { method: "POST", path: "/api/v1/bots/:id/restart", desc: "Restart a bot." },
@@ -168,7 +168,7 @@ export function DeveloperApi() {
   const boostEndpoints: EndpointDoc[] = [
     { method: "GET", path: "/api/v1/boost/services?q=instagram&currency=KES", desc: "List boosting services from our local catalogue (fast). Optional query params: q, category, currency (KES, USD, NGN, ...). Response includes id, name, pricePer1000, min, max, platformId, serviceType." },
     { method: "GET", path: "/api/v1/boost/categories", desc: "List all category names for building filters." },
-    { method: "POST", path: "/api/v1/boost/order", desc: "Place a boost order using TX only (no card/mobile money on the API). Debits TX from your balance. Returns 402 with requiredTx, balanceTx, shortfallTx if balance is too low. Auto-refunds TX if the upstream order fails.", body: '{"serviceId":745,"link":"https://instagram.com/handle","quantity":1000}' },
+    { method: "POST", path: "/api/v1/boost/order", desc: "Place a boost order from your balance only (no card/mobile money on the API). Debits your balance. Returns 402 with requiredTx, balanceTx, shortfallTx if balance is too low. Auto-refunds if the upstream order fails.", body: '{"serviceId":745,"link":"https://instagram.com/handle","quantity":1000}' },
     { method: "GET", path: "/api/v1/boost/orders", desc: "List your boost orders plus stats (total, completed, pending, failed, globalCompleted)." },
     { method: "GET", path: "/api/v1/boost/orders/:id/refresh", desc: "Refresh a single order status from the fulfilment pipeline." },
   ];
@@ -197,11 +197,11 @@ export function DeveloperApi() {
         <div>
           <h1 className="text-xl font-bold mb-1">My API Key</h1>
           <p className="text-sm text-muted-foreground mb-4">
-            Deploy bots and place social media boosting orders programmatically. One API key, simple REST endpoints, billed only from your TX balance (top up on the site first — direct card/mobile money is website-only).
+            Deploy bots and place social media boosting orders programmatically. One API key, simple REST endpoints, billed only from your account balance (top up on the site first — direct card/mobile money is website-only).
           </p>
           <div className="mb-4 p-3 rounded-lg border border-teal-500/20 bg-teal-500/5 text-xs text-teal-200/90 leading-relaxed">
-            <p className="font-semibold text-teal-300 mb-1">TX billing for API orders</p>
-            <p>Boost and bot deploy calls deduct TX from your account. If you do not have enough TX, the API returns <code className="text-[11px]">402 INSUFFICIENT_COINS</code> with <code className="text-[11px]">requiredTx</code>, <code className="text-[11px]">balanceTx</code>, and <code className="text-[11px]">shortfallTx</code> so you can prompt the user to top up.</p>
+            <p className="font-semibold text-teal-300 mb-1">Balance billing for API orders</p>
+            <p>Boost and bot deploy calls deduct from your balance. If it is too low, the API returns <code className="text-[11px]">402 INSUFFICIENT_COINS</code> with <code className="text-[11px]">requiredTx</code>, <code className="text-[11px]">balanceTx</code>, and <code className="text-[11px]">shortfallTx</code> so you can prompt the user to top up.</p>
           </div>
 
           {loading ? (
@@ -326,12 +326,12 @@ curl "${origin}/api/v1/me" -H "Authorization: Bearer <YOUR_API_KEY>"
 curl "${origin}/api/v1/boost/services?q=instagram%20followers&currency=KES" \
   -H "Authorization: Bearer <YOUR_API_KEY>"
 
-# 3) Place order (TX deducted)
+# 3) Place order (balance deducted)
 curl -X POST "${origin}/api/v1/boost/order" \
   -H "Authorization: Bearer <YOUR_API_KEY>" \
   -H "Content-Type: application/json" \
   -d '{"serviceId":745,"link":"https://instagram.com/handle","quantity":1000}'`}</CodeBlock>
-          <p className="text-xs text-muted-foreground">On success you get order id, status, costTx, costKes, and balanceLeft. On low balance you get a clear 402 with how much TX is missing.</p>
+          <p className="text-xs text-muted-foreground">On success you get order id, status, costTx, costKes, and balanceLeft. On low balance you get a clear 402 with how much is missing.</p>
         </div>
       </main>
     </div>
