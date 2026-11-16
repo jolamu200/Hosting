@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
     LayoutDashboard, CreditCard, BookOpen, UserCircle, LogOut,
     Bot, Shield, ChevronRight, Moon, Sun, Menu, X, PlayCircle, LogIn, UserPlus, Loader2
   } from "lucide-react";
+import { tx } from "@/lib/money";
 
   function useTheme() {
     const [theme, setTheme] = useState<"dark" | "light">(() =>
@@ -104,7 +105,7 @@ import { useEffect, useState } from "react";
 
     const navItems = [
       { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-      { label: "Top Up TX", icon: CreditCard, path: "/topup" },
+      { label: "Top Up", icon: CreditCard, path: "/topup" },
       { label: "Docs", icon: BookOpen, path: "/docs" },
     ];
 
@@ -154,7 +155,7 @@ import { useEffect, useState } from "react";
                 <p className="text-sm font-semibold truncate">{user.username ? `@${user.username}` : user.email}</p>
                 <div className="mt-2 flex items-center gap-1.5">
                   <Coins className="w-3.5 h-3.5 text-teal-400" />
-                  <span className="text-sm font-bold text-teal-400">Balance: {user.txCoins} TX</span>
+                  <span className="text-sm font-bold text-teal-400">Balance: {tx(user.txCoins)}</span>
                 </div>
               </div>
             ) : (
