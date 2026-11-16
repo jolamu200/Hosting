@@ -326,6 +326,25 @@ export async function getBotTemplates() {
   return res.json();
 }
 
+export interface GithubRepoResult {
+  fullName: string; owner: string; name: string; description: string; url: string;
+  avatar: string; stars: number; forks: number; language: string;
+}
+
+export async function searchGithubRepos(q: string): Promise<GithubRepoResult[]> {
+  const res = await fetch(`${API_URL}/github/search?q=${encodeURIComponent(q)}`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data?.error || "Search failed");
+  return Array.isArray(data.results) ? data.results : [];
+}
+
+export async function createCustomTemplate(githubRepo: string): Promise<{ slug: string }> {
+  const res = await fetchWithAuth("/bot-templates/custom", { method: "POST", body: JSON.stringify({ githubRepo }) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.slug) throw new Error(data?.error || "Could not prepare this repository");
+  return { slug: data.slug };
+}
+
 export async function getBotTemplateBySlug(slug: string) {
   const res = await fetch(`${API_URL}/bot-templates/slug/${slug}`);
   return res.json();
