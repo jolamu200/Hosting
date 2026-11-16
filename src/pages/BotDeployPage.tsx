@@ -20,6 +20,7 @@ import { useState, useRef, useEffect } from "react";
     Smartphone, Apple, Rocket, ChevronRight, ClipboardPaste,
     Info, AlertCircle, ChevronDown, KeyRound, Hash
   } from "lucide-react";
+import { tx } from "@/lib/money";
 
   const DEPLOY_COST = 10;
   const AUTO_VARS = new Set(["BOT_NAME", "HEROKU_APP_NAME", "HEROKU_API_KEY", "DEVICE"]);
@@ -277,18 +278,18 @@ import { useState, useRef, useEffect } from "react";
           <div className="p-4 rounded-xl border border-border bg-card text-sm">
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Cost ({months} {months === 1 ? "month" : "months"})</span>
-              <span className={`font-semibold ${user && insufficientBalance ? "text-red-400" : "text-teal-400"}`}>{totalCost} TX</span>
+              <span className={`font-semibold ${user && insufficientBalance ? "text-red-400" : "text-teal-400"}`}>{tx(totalCost)}</span>
             </div>
             {user && (
               <>
                 <div className="flex justify-between items-center mt-1.5">
                   <span className="text-muted-foreground">Your balance</span>
-                  <span className={`font-semibold ${insufficientBalance ? "text-red-400" : "text-teal-400"}`}>{txBalance} TX</span>
+                  <span className={`font-semibold ${insufficientBalance ? "text-red-400" : "text-teal-400"}`}>{tx(txBalance)}</span>
                 </div>
                 {insufficientBalance && (
                   <p className="text-xs mt-3 text-red-400">
-                    You need {totalCost - txBalance} more TX.{" "}
-                    <button type="button" onClick={() => setTopUpOpen(true)} className="underline font-semibold text-teal-300">Tap here to buy TX without leaving this page</button>
+                    You need {tx(totalCost - txBalance)} more.{" "}
+                    <button type="button" onClick={() => setTopUpOpen(true)} className="underline font-semibold text-teal-300">Tap here to add funds without leaving this page</button>
                   </p>
                 )}
               </>
@@ -511,20 +512,20 @@ import { useState, useRef, useEffect } from "react";
             ) : !user ? (
               <><Rocket className="w-4 h-4 mr-2" />Sign In to Deploy</>
             ) : insufficientBalance ? (
-              "Tap to buy TX on this page"
+              "Tap to add funds on this page"
             ) : (
-              <><Rocket className="w-4 h-4 mr-2" />Deploy Bot ({totalCost} TX)</>
+              <><Rocket className="w-4 h-4 mr-2" />Deploy Bot ({tx(totalCost)})</>
             )}
           </Button>
         </main>
 
-        <Modal isOpen={lowBalanceModal} onClose={() => setLowBalanceModal(false)} title="Insufficient TX Balance">
+        <Modal isOpen={lowBalanceModal} onClose={() => setLowBalanceModal(false)} title="Insufficient Balance">
           <div className="space-y-4 text-center">
             <p className="text-muted-foreground text-sm">
-              You need {totalCost} TX to deploy this bot but only have {txBalance} TX.
+              You need {tx(totalCost)} to deploy this bot but only have {tx(txBalance)}.
             </p>
             <Button className="w-full" onClick={() => { setLowBalanceModal(false); setTopUpOpen(true); }}>
-              Buy TX on this page
+              Add funds on this page
             </Button>
             <Button variant="outline" className="w-full" onClick={() => setLowBalanceModal(false)}>
               Cancel
