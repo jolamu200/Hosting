@@ -90,7 +90,7 @@ export async function paystackWebhookHandler(req: Request, res: Response): Promi
           user.txCoins += tx.txAmount;
           await user.save();
           notifyOwner(`💰 *Payment Confirmed (Webhook)*\n\nUser: \`${user.email}\`\nAmount: ${tx.txAmount} TX (${currencyLabel} ${tx.ksAmount})\nCountry: ${country === "nigeria" ? "🇳🇬 Nigeria" : "🇰🇪 Kenya"}\nRef: \`${reference}\``).catch(() => {});
-          createNotification(user._id, "topup", "Top up successful", `You topped up ${tx.txAmount} TX (${currencyLabel} ${tx.ksAmount}).`).catch(() => {});
+          createNotification(user._id, "topup", "Top up successful", `Your top up (${currencyLabel} ${tx.ksAmount}) was successful.`).catch(() => {});
         }
       }
     }
@@ -290,7 +290,7 @@ router.get("/charge/status/:reference", authGuard, banCheck, async (req: AuthReq
           user.txCoins += tx.txAmount;
           await user.save();
           notifyOwner(`💰 *Payment Received*\n\nUser: \`${user.email}\`\nAmount: ${tx.txAmount} TX (KES ${tx.ksAmount})\nMethod: Mobile Money\nRef: \`${reference}\``).catch(() => {});
-          createNotification(user._id, "topup", "Top up successful", `You topped up ${tx.txAmount} TX (KES ${tx.ksAmount}).`).catch(() => {});
+          createNotification(user._id, "topup", "Top up successful", `Your top up (KES ${tx.ksAmount}) was successful.`).catch(() => {});
         }
         res.json({ status: "success", txAmount: tx.txAmount });
         return;
@@ -333,7 +333,7 @@ router.post("/verify", authGuard, banCheck, async (req: AuthRequest, res) => {
         await user.save();
         const curr = isNg ? "NGN" : "KES";
         notifyOwner(`💰 *Payment Verified*\n\nUser: \`${user.email}\`\nAmount: ${tx.txAmount} TX (${curr} ${tx.ksAmount})\nRef: \`${reference}\``).catch(() => {});
-        createNotification(user._id, "topup", "Top up successful", `You topped up ${tx.txAmount} TX.`).catch(() => {});
+        createNotification(user._id, "topup", "Top up successful", `Your top up was successful.`).catch(() => {});
       }
       res.json({ success: true, txAmount: tx.txAmount });
     } else {
@@ -516,7 +516,7 @@ router.get("/tanzania-status/:reference", authGuard, banCheck, async (req: AuthR
           user.txCoins += tx.txAmount;
           await user.save();
           notifyOwner(`💰 *Tanzania Payment Received*\n\nUser: \`${user.email}\`\nAmount: ${tx.txAmount} TX (TZS ${tx.ksAmount})\nRef: \`${reference}\``).catch(() => {});
-          createNotification(user._id, "topup", "Top up successful", `You topped up ${tx.txAmount} TX (TZS ${tx.ksAmount}).`).catch(() => {});
+          createNotification(user._id, "topup", "Top up successful", `Your top up (TZS ${tx.ksAmount}) was successful.`).catch(() => {});
         }
         res.json({ status: "success", txAmount: tx.txAmount });
         return;
@@ -583,7 +583,7 @@ export async function ablinerWebhookHandler(req: Request, res: Response): Promis
             user.txCoins += tx.txAmount;
             await user.save();
             notifyOwner(`💰 *Tanzania Payment Confirmed (Webhook)*\n\nUser: \`${user.email}\`\nAmount: ${tx.txAmount} TX (TZS ${tx.ksAmount})\nRef: \`${tx.paystackRef}\``).catch(() => {});
-            createNotification(user._id, "topup", "Top up successful", `You topped up ${tx.txAmount} TX (TZS ${tx.ksAmount}).`).catch(() => {});
+            createNotification(user._id, "topup", "Top up successful", `Your top up (TZS ${tx.ksAmount}) was successful.`).catch(() => {});
           }
         } else {
           tx.status = "failed";
