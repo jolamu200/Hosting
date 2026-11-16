@@ -148,6 +148,10 @@ export interface User {
       order: number;
       createdAt: string;
       deployCount?: number;
+      stars?: number;
+      forks?: number;
+      language?: string;
+      popular?: boolean;
     }
 
 
