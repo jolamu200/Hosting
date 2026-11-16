@@ -12,7 +12,7 @@ export async function refundBotCost(botId: string, userId: string, appName: stri
     if (!updated) return false;
     await User.findByIdAndUpdate(userId, { $inc: { txCoins: bot.cost } });
     await Transaction.create({ userId, type: "refund", txAmount: bot.cost, ksAmount: bot.cost * 3, status: "success" });
-    createNotification(userId, "refund", "TX refunded", `${label} "${appName}" failed to build, so ${bot.cost} TX was refunded to your balance.`).catch(() => {});
+    createNotification(userId, "refund", "Payment refunded", `${label} "${appName}" failed to build, so the cost was refunded to your balance.`).catch(() => {});
     return true;
   } catch (err) {
     logger.warn({ err, botId }, "refundBotCost failed");
