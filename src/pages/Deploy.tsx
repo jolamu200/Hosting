@@ -16,6 +16,7 @@ import {
   Smartphone, Apple, Sparkles, KeyRound, Hash, Rocket,
   ChevronRight, Copy, Info, AlertCircle
 } from "lucide-react";
+import { tx } from "@/lib/money";
 
 const DEPLOY_COST = 10;
 
@@ -103,7 +104,7 @@ export function Deploy() {
         navigate("/mybots");
       } else {
         if (res.code === "INSUFFICIENT_COINS") {
-          showToast("Not enough TX — buy here without leaving this page", "error");
+          showToast("Not enough balance — add funds here without leaving this page", "error");
           setTopUpOpen(true);
         } else {
           showToast(res.error || "Failed to deploy bot", "error");
@@ -173,7 +174,7 @@ export function Deploy() {
                 <p className="text-sm font-bold">Free Trial — 24 Hours</p>
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-teal-500 text-white leading-none shrink-0">FREE</span>
               </div>
-              <p className="text-xs mt-0.5 text-teal-300/80">No TX coins required · Runs for 24 hours · One per WhatsApp number</p>
+              <p className="text-xs mt-0.5 text-teal-300/80">No payment required · Runs for 24 hours · One per WhatsApp number</p>
             </div>
             <div className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${isTrial ? "bg-teal-500 border-teal-500" : "border-teal-500/50"}`}>
               {isTrial && <Check className="w-3 h-3 text-white" />}
@@ -393,23 +394,23 @@ export function Deploy() {
           <div className={`p-4 rounded-xl border text-sm transition-all ${insufficientBalance ? "bg-red-500/10 border-red-500/30" : "bg-muted/50 border-border"}`}>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Cost ({months} {months === 1 ? "month" : "months"})</span>
-              <span className={`font-semibold ${insufficientBalance ? "text-red-400" : "text-foreground"}`}>{totalCost} TX</span>
+              <span className={`font-semibold ${insufficientBalance ? "text-red-400" : "text-foreground"}`}>{tx(totalCost)}</span>
             </div>
             <div className="flex justify-between items-center mt-1.5">
               <span className="text-muted-foreground">Your balance</span>
-              <span className={`font-semibold ${insufficientBalance ? "text-red-400" : "text-teal-400"}`}>{coinBalance} TX</span>
+              <span className={`font-semibold ${insufficientBalance ? "text-red-400" : "text-teal-400"}`}>{tx(coinBalance)}</span>
             </div>
             {insufficientBalance && (
               <div className="mt-3 space-y-2">
                 <p className="text-xs text-red-400">
-                  You need {totalCost - coinBalance} more TX to deploy.
+                  You need {tx(totalCost - coinBalance)} more to deploy.
                 </p>
                 <button
                   type="button"
                   onClick={() => setTopUpOpen(true)}
                   className="text-xs font-semibold text-teal-300 underline underline-offset-2"
                 >
-                  Tap here to buy TX directly without leaving this page
+                  Tap here to add funds without leaving this page
                 </button>
               </div>
             )}
@@ -424,9 +425,9 @@ export function Deploy() {
           {loading ? (
             <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Deploying...</>
           ) : insufficientBalance ? (
-            <><CreditCard className="w-5 h-5 mr-2" />Tap to buy TX on this page</>
+            <><CreditCard className="w-5 h-5 mr-2" />Tap to add funds on this page</>
           ) : (
-            <><Rocket className="w-5 h-5 mr-2" />{effectiveIsTrial ? "Deploy Free Trial" : `Deploy Bot — ${totalCost} TX`}</>
+            <><Rocket className="w-5 h-5 mr-2" />{effectiveIsTrial ? "Deploy Free Trial" : `Deploy Bot — ${tx(totalCost)}`}</>
           )}
         </Button>
       </main>
