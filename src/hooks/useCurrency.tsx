@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, Fragment, type ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { getCurrencyList, setUserCurrency } from "@/lib/api";
+import { setMoneyState, detectCurrency } from "@/lib/money";
 
 export interface CurrencyDef {
   code: string;
@@ -45,7 +46,11 @@ const CurrencyContext = createContext<CurrencyContextType>({
 export function CurrencyProvider({ children }: { children: ReactNode }) {
   const { user, refreshUser } = useAuth();
   const [currencies, setCurrencies] = useState<CurrencyDef[]>(FALLBACK_CURRENCIES);
-  const [currency, setCurrencyState] = useState<string>(() => localStorage.getItem(STORAGE_KEY) || "KES");
+  const [currency, setCurrencyState] = useState<string>(() => {
+    const code = localStorage.getItem(STORAGE_KEY) || detectCurrency();
+    setMoneyState(code);
+    return code;
+  });
   const [shouldPrompt, setShouldPrompt] = useState(false);
 
   useEffect(() => {
@@ -54,18 +59,22 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       .catch(() => {});
   }, []);
 
+  useEffect(() => { setMoneyState(currency, currencies); }, [currency, currencies]);
+
   useEffect(() => {
-    if (user) {
-      if (user.currency) {
-        setCurrencyState(user.currency);
-        localStorage.setItem(STORAGE_KEY, user.currency);
-      }
-      if (!user.currencySet && !sessionStorage.getItem(STORAGE_SEEN_KEY)) {
-        setShouldPrompt(true);
-      } else {
-        setShouldPrompt(false);
-      }
+    if (!user) return;
+    if (user.currencySet && user.currency) {
+      setCurrencyState(user.currency);
+      localStorage.setItem(STORAGE_KEY, user.currency);
+    } else if (!user.currencySet) {
+      // First visit after sign-up: detect the country automatically and remember it (no popup).
+      const guess = localStorage.getItem(STORAGE_KEY) || detectCurrency();
+      setCurrencyState(guess);
+      localStorage.setItem(STORAGE_KEY, guess);
+      setUserCurrency(guess).then(() => refreshUser()).catch(() => {});
     }
+    setShouldPrompt(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const setCurrency = useCallback((code: string) => {
@@ -98,7 +107,8 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
 
   return (
     <CurrencyContext.Provider value={{ currency, currencies, setCurrency, format, convert, shouldPrompt, dismissPrompt }}>
-      {children}
+      {/* Re-render the tree when the currency changes so every price updates. */}
+      <Fragment key={currency}>{children}</Fragment>
     </CurrencyContext.Provider>
   );
 }
