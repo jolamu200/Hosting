@@ -21,8 +21,8 @@ const sections: Section[] = [
       { q: "How do I deploy a bot?", a: "From your dashboard, go to Services → Bot Deployment. Browse the available bot templates and click 'Deploy'. On the deploy page: get your session ID (Step 1), enter a bot name of at least 5 letters (Step 2), paste your session ID (Step 3), choose your device mode (Step 4), then click Deploy. Your bot builds in roughly 4 minutes.", tags: ["deploy", "start", "setup", "new"] },
       { q: "Where do I get a session ID?", a: "Each bot template has a 'Get Session ID' button that opens the pairing page. Follow the pairing process and you'll receive a long session string — copy and paste the entire value into the deploy form.", tags: ["session", "pair", "qr", "link"] },
       { q: "What's the difference between Android and iOS device?", a: "Android enables interactive buttons (list menus, quick-reply buttons). iOS uses text-only responses. Choose based on your bot's feature set — Android is recommended for most use cases.", tags: ["android", "ios", "device", "mode"] },
-      { q: "How much does hosting cost?", a: "Most bots cost 10 TX per month. Some premium templates may cost more — the cost is shown clearly on each bot's deploy page before you confirm. 10 TX = 1 month of hosting for one bot.", tags: ["price", "cost", "tx", "coins"] },
-      { q: "Can I deploy multiple bots?", a: "Yes. You can deploy as many bots as your TX balance allows, and manage them all from the My Bots page.", tags: ["multiple", "more", "bots"] },
+      { q: "How much does hosting cost?", a: "Hosting is a small monthly fee per bot. The exact price in your own currency is shown clearly on each bot's deploy page before you confirm.", tags: ["price", "cost", "tx", "coins"] },
+      { q: "Can I deploy multiple bots?", a: "Yes. You can deploy as many bots as your balance allows, and manage them all from the My Bots page.", tags: ["multiple", "more", "bots"] },
       { q: "How long does deployment take?", a: "Deployment typically takes around 4 minutes. During this time, Heroku builds and starts your bot. You'll see the status update from 'building' to 'running' on the My Bots page once it's ready.", tags: ["time", "deploy", "how long", "minutes", "building"] },
     ],
   },
@@ -40,14 +40,14 @@ const sections: Section[] = [
   },
   {
     icon: Zap,
-    title: "TX Coins & Billing",
+    title: "Balance & Billing",
     color: "violet",
     items: [
-      { q: "What are TX Coins?", a: "TX is the in-app currency used to pay for bot hosting. 10 TX = 1 month of hosting for one bot. TX never expires.", tags: ["tx", "coins", "currency", "what"] },
-      { q: "How do I buy TX?", a: "Go to the Top Up page. Choose a package and pay via M-Pesa, Airtel Money, Credit/Debit Card, or Apple Pay. TX is added instantly after payment confirmation.", tags: ["buy", "top up", "purchase", "pay", "mpesa", "airtel", "card"] },
-      { q: "What is the cheapest option?", a: "The Starter pack gives you the minimum TX needed to deploy a bot. The Best Deal pack gives the most TX per shilling — look for the 'Best Deal' badge.", tags: ["cheap", "cheap", "starter", "best", "deal"] },
-      { q: "Do TX coins expire?", a: "No — your TX balance never expires. Use it whenever you need to deploy or renew.", tags: ["expire", "expiry", "balance", "never"] },
-      { q: "My payment went through but TX wasn't added", a: "Wait 1–2 minutes and refresh your dashboard. If TX still hasn't been added after 5 minutes, contact support with your payment reference number.", tags: ["payment", "tx", "not added", "missing", "charged"] },
+      { q: "How does my balance work?", a: "Your balance is shown in your local currency and is used to pay for bot hosting and boosting. It never expires.", tags: ["tx", "coins", "currency", "what"] },
+      { q: "How do I add funds?", a: "Go to the Top Up page. Choose a package and pay via M-Pesa, Airtel Money, Credit/Debit Card, or Apple Pay. Your balance is updated instantly after payment confirmation.", tags: ["buy", "top up", "purchase", "pay", "mpesa", "airtel", "card"] },
+      { q: "What is the cheapest option?", a: "The Starter pack gives you the minimum needed to deploy a bot. The Best Deal pack gives the most value for your money — look for the 'Best Deal' badge.", tags: ["cheap", "cheap", "starter", "best", "deal"] },
+      { q: "Does my balance expire?", a: "No — your balance never expires. Use it whenever you need to deploy or renew.", tags: ["expire", "expiry", "balance", "never"] },
+      { q: "My payment went through but my balance didn't change", a: "Wait 1–2 minutes and refresh your dashboard. If your balance still hasn't changed after 5 minutes, contact support with your payment reference number.", tags: ["payment", "tx", "not added", "missing", "charged"] },
     ],
   },
   {
@@ -65,9 +65,9 @@ const sections: Section[] = [
     title: "Referrals",
     color: "blue",
     items: [
-      { q: "How do referrals work?", a: "Share your unique referral link from the dashboard. When someone signs up using your link, you both earn 2 TX automatically.", tags: ["referral", "invite", "earn", "bonus"] },
+      { q: "How do referrals work?", a: "Share your unique referral link from the dashboard. When someone signs up using your link, you both earn a reward automatically.", tags: ["referral", "invite", "earn", "bonus"] },
       { q: "Are there restrictions on referrals?", a: "Yes — accounts created from the same IP address or device as yours do not qualify for referral rewards. This prevents self-referrals.", tags: ["referral", "restriction", "ip", "self"] },
-      { q: "When do I receive my referral TX?", a: "Instantly, as soon as your referral creates an account. No delays, no waiting.", tags: ["referral", "when", "instant"] },
+      { q: "When do I receive my referral reward?", a: "Instantly, as soon as your referral creates an account. No delays, no waiting.", tags: ["referral", "when", "instant"] },
     ],
   },
   {
@@ -91,7 +91,7 @@ const sections: Section[] = [
       { q: "Bot is running but not replying to messages", a: "Check these in order:\n1. Confirm the bot status shows 'running' on the My Bots page.\n2. Click 'Logs' and look for error messages.\n3. If logs show 'session expired' or similar — generate a new session and update it via Edit.\n4. If the bot was recently deployed, wait 5 minutes — some bots take time to fully initialize.\n5. If issues persist, contact support with your bot name and a screenshot of the logs.", tags: ["not replying", "not responding", "messages", "reply", "silent"] },
       { q: "Deploy failed / bot stuck in 'building'", a: "If your bot has been in 'building' status for more than 10 minutes, the deployment likely failed. Try:\n1. Go to Services → Bot Deployment.\n2. Click Deploy again using the same bot template and a fresh session ID.\n3. If the issue persists, contact support with your bot name.", tags: ["deploy failed", "building", "stuck", "failed", "deployment"] },
       { q: "The page goes blank / white screen", a: "Try a hard refresh (Ctrl+Shift+R on desktop, or pull down to refresh on mobile). If logged out, sign in again and navigate back. If the issue persists across refreshes, clear your browser cache.", tags: ["blank", "white", "screen", "empty", "page", "crash"] },
-      { q: "Payment failed or was not processed", a: "If your M-Pesa / Airtel prompt didn't appear: make sure your phone number is correct and includes the country code. If payment was deducted but TX wasn't added, wait 3 minutes and refresh. If still missing, contact support with your reference number and a screenshot.", tags: ["payment", "failed", "not processed", "mpesa", "airtel", "charged"] },
+      { q: "Payment failed or was not processed", a: "If your M-Pesa / Airtel prompt didn't appear: make sure your phone number is correct and includes the country code. If payment was deducted but your balance wasn't updated, wait 3 minutes and refresh. If still missing, contact support with your reference number and a screenshot.", tags: ["payment", "failed", "not processed", "mpesa", "airtel", "charged"] },
       { q: "I can't log in to my account", a: "Try these:\n1. If using email+password: click 'Forgot password?' and reset it.\n2. If using GitHub or Google: click the respective OAuth button — do not enter a password.\n3. If your account was banned, the login page will show an error message.\n4. Try a different browser or clear cookies.", tags: ["login", "cant login", "sign in", "access", "locked out"] },
     ],
   },
@@ -102,7 +102,7 @@ const sections: Section[] = [
     items: [
       { q: "Can I change my WhatsApp bot's phone number?", a: "No — bots are tied to the session ID which is linked to a specific WhatsApp number. To use a different number, deploy a new bot.", tags: ["phone", "number", "change", "whatsapp"] },
       { q: "What happens when my bot expires?", a: "When your bot's hosting period ends, it enters a 24-hour grace period where it stays in maintenance mode. After that, it is automatically deleted. Renew before expiry from the My Bots page to avoid data loss.", tags: ["expire", "expiry", "delete", "grace", "renew"] },
-      { q: "Can I renew my bot?", a: "Yes. From the My Bots page, click 'Renew' on any active or expired bot. TX will be deducted and the bot's expiry is extended by 30 days.", tags: ["renew", "extend", "subscription"] },
+      { q: "Can I renew my bot?", a: "Yes. From the My Bots page, click 'Renew' on any active or expired bot. The cost will be deducted from your balance and the bot's expiry is extended by 30 days.", tags: ["renew", "extend", "subscription"] },
     ],
   },
 ];
