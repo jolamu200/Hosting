@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Modal } from "./Modal";
 import { Users, Copy, Check } from "lucide-react";
+import { tx } from "@/lib/money";
 
 interface ReferralModalProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ export function ReferralModal({ isOpen, onClose, referralCode }: ReferralModalPr
   const handleShare = async () => {
     const shareData = {
       title: "Join Bmb Tech Hosting",
-      text: "Get free TX coins when you sign up for Bmb Tech Hosting using my referral link!",
+      text: "Get free credit when you sign up for Bmb Tech Hosting using my referral link!",
       url: referralUrl
     };
     if (navigator.share) {
@@ -54,9 +55,9 @@ export function ReferralModal({ isOpen, onClose, referralCode }: ReferralModalPr
           <Users className="w-7 h-7 text-teal-400" />
         </div>
         <div className="text-center">
-          <p className="font-semibold mb-1">Invite friends, earn TX</p>
+          <p className="font-semibold mb-1">Invite friends, earn rewards</p>
           <p className="text-muted-foreground text-sm">
-            Share your link — every friend who signs up gives you <span className="text-teal-400 font-medium">2 TX</span>, and your friend also gets <span className="text-teal-400 font-medium">2 TX</span> as a welcome bonus.
+            Share your link — every friend who signs up gives you <span className="text-teal-400 font-medium">{tx(2)}</span>, and your friend also gets <span className="text-teal-400 font-medium">{tx(2)}</span> as a welcome bonus.
           </p>
         </div>
 
