@@ -13,16 +13,17 @@ import { ReferralModal } from "@/components/ReferralModal";
 import { PageLoader } from "@/components/PageLoader";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
 import {
-  Gift, Users, Coins, LogOut, Shield, Clock, Loader2, RefreshCw, Bot,
+  Gift, Users, Coins, LogOut, Shield, Clock, Loader2, Bot,
   AlertTriangle, Menu, X, LayoutDashboard, BookOpen, UserCircle, CreditCard,
-  MessageCircle, ChevronRight, ChevronLeft, ArrowRight, Moon, Sun, Server,
-  Youtube, Hash, TrendingUp, Code2, Search, LayoutGrid, Trash2, HelpCircle,
-  Radio, Share2,
+  MessageCircle, MessageSquare, ArrowRight, Moon, Sun, Server,
+  Youtube, TrendingUp, Code2, Search, LayoutGrid, Trash2, HelpCircle,
+  Radio,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import { TechBackground } from "@/components/TechBackground";
 import { AppLogoIcon } from "@/components/AppLogo";
 import { tx } from "@/lib/money";
+import { userAvatar } from "@/lib/chat";
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                              */
@@ -49,17 +50,9 @@ const SERVICES: ServiceItem[] = [
   { title: "My Bots", desc: "Manage, renew and monitor all of your running bots", icon: Server, path: "/mybots", group: "Cloud" },
   { title: "Developer API", desc: "API keys and docs to automate orders and deployments", icon: Code2, path: "/developers", group: "Developer" },
   { title: "Top Up", desc: "Add funds to your wallet in your own local currency", icon: CreditCard, path: "/topup", group: "Finance" },
-  { title: "Price Calculator", desc: "Work out exactly what a service will cost you", icon: Hash, path: "/calculator", group: "Tools" },
+  { title: "Community Chat", desc: "Chat with other members, share links and pictures, get quick answers", icon: MessageSquare, path: "/community", group: "Community" },
   { title: "Docs & Guides", desc: "Learn how deployment, renewals and sessions work", icon: BookOpen, path: "/docs", group: "Support" },
   { title: "Video Tutorials", desc: "Watch step-by-step guides on YouTube", icon: Youtube, path: "/tutorials", group: "Support" },
-];
-
-interface Slide { title: string; sub: string; icon: LucideIcon; path: string; group: string }
-
-const SLIDES: Slide[] = [
-  { title: "Deploy WhatsApp Bots", sub: "24/7 hosting from verified templates", icon: Bot, path: "/services/bots", group: "Cloud" },
-  { title: "Social Media Boosting", sub: "Followers, likes & views at super cheap prices", icon: TrendingUp, path: "/services/boosting", group: "Growth" },
-  { title: "Developer API", sub: "Automate your orders and deployments", icon: Code2, path: "/developers", group: "Developer" },
 ];
 
 function readVisits(): Visit[] {
@@ -71,13 +64,6 @@ function readVisits(): Visit[] {
   } catch {
     return [];
   }
-}
-
-function greeting(): string {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 18) return "Good afternoon";
-  return "Good evening";
 }
 
 function useTheme() {
@@ -178,10 +164,8 @@ export function Dashboard() {
   const [referralOpen, setReferralOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [deployingAppName, setDeployingAppName] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
   const [query, setQuery] = useState("");
   const [showAllServices, setShowAllServices] = useState(false);
-  const [slide, setSlide] = useState(0);
   const [visits, setVisits] = useState<Visit[]>(readVisits);
   const deployTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -256,18 +240,6 @@ export function Dashboard() {
     return () => { if (deployTimerRef.current) clearTimeout(deployTimerRef.current); };
   }, []);
 
-  // Auto-rotate the hero banner
-  useEffect(() => {
-    const id = setInterval(() => setSlide(s => (s + 1) % SLIDES.length), 5000);
-    return () => clearInterval(id);
-  }, []);
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await Promise.all([fetchData(), refreshUser()]);
-    setRefreshing(false);
-  };
-
   const recordVisit = (path: string, label: string, group: string) => {
     const exists = visits.some(v => v.path === path);
     const next = exists
@@ -334,6 +306,7 @@ export function Dashboard() {
 
   const displayName = user.username || user.email.split("@")[0];
   const initial = displayName.charAt(0).toUpperCase();
+  const avatarUrl = userAvatar(user);
 
   const activeBots = bots.filter(b => b.status === "running").length;
   const totalBots = bots.filter(b => b.status !== "deleted").length;
@@ -360,8 +333,6 @@ export function Dashboard() {
     { label: "Boosting", icon: TrendingUp, path: "/services/boosting" },
     { label: "Profile", icon: UserCircle, path: "/profile" },
   ];
-
-  const current = SLIDES[slide];
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -404,10 +375,14 @@ export function Dashboard() {
             </button>
             <button
               onClick={() => go("/profile")}
-              className="grid place-items-center w-10 h-10 rounded-full bg-primary text-primary-foreground font-bold text-sm"
+              className="grid place-items-center w-10 h-10 rounded-full bg-primary text-primary-foreground font-bold text-sm overflow-hidden"
               aria-label="Profile"
             >
-              {initial}
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" referrerPolicy="no-referrer" className="w-full h-full rounded-full object-cover" />
+              ) : (
+                initial
+              )}
             </button>
           </div>
         </div>
@@ -476,13 +451,17 @@ export function Dashboard() {
             <NavRow icon={Users} label="Refer & Earn" onClick={() => { setNavOpen(false); setReferralOpen(true); }} />
           </div>
 
+          <SectionLabel>Community</SectionLabel>
+          <div className="space-y-2">
+            <NavRow icon={MessageSquare} label="Community Chat" onClick={() => go("/community", "Community Chat", "Community")} />
+          </div>
+
           <SectionLabel>Services</SectionLabel>
           <div className="space-y-2">
             <NavRow icon={Bot} label="Bot Deployment" onClick={() => go("/services/bots", "Bot Deployment", "Cloud")} />
             <NavRow icon={Server} label="My Bots" onClick={() => go("/mybots", "My Bots", "Cloud")} />
             <NavRow icon={TrendingUp} label="Social Media Boosting" onClick={() => go("/services/boosting", "Social Media Boosting", "Growth")} />
             <NavRow icon={Code2} label="Developer API" onClick={() => go("/developers", "Developer API", "Developer")} />
-            <NavRow icon={Hash} label="Price Calculator" onClick={() => go("/calculator", "Price Calculator", "Tools")} />
           </div>
 
           <SectionLabel>Learn & Support</SectionLabel>
@@ -536,89 +515,6 @@ export function Dashboard() {
       {/* ---------------- Main ---------------- */}
       <main className="relative z-[1] px-3 sm:px-5 lg:pl-[19.5rem] lg:pr-6 pt-6 pb-28 lg:pb-12">
         <div className="mx-auto max-w-5xl space-y-6">
-
-          {/* greeting */}
-          <section>
-            <h1 className="text-3xl sm:text-4xl font-extrabold font-display leading-tight">
-              {greeting()}, {displayName}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1.5">
-              Select a service, deploy a bot, or manage your wallet.
-            </p>
-            <div className="flex flex-wrap items-center gap-2 mt-4">
-              <button
-                onClick={() => setReferralOpen(true)}
-                className="inline-flex items-center gap-2 h-10 px-4 rounded-full border border-border bg-muted/40 text-sm font-semibold hover:bg-muted transition-colors"
-              >
-                <Share2 className="w-4 h-4" />
-                Refer & Earn
-              </button>
-              <button
-                onClick={() => go("/services/bots", "Bot Deployment", "Cloud")}
-                className="inline-flex items-center gap-2 h-10 px-4 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity bmb-btn-glow"
-              >
-                <Bot className="w-4 h-4" />
-                Deploy a Bot
-              </button>
-              <button
-                onClick={handleRefresh}
-                disabled={refreshing || loading}
-                className="grid place-items-center w-10 h-10 rounded-full border border-border bg-muted/40 hover:bg-muted transition-colors disabled:opacity-50"
-                aria-label="Refresh"
-              >
-                <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-primary" : "text-muted-foreground"}`} />
-              </button>
-            </div>
-          </section>
-
-          {/* hero banner */}
-          <section className="relative h-44 sm:h-56 rounded-2xl overflow-hidden border border-border">
-            {SLIDES.map((s, i) => (
-              <button
-                key={s.title}
-                onClick={() => go(s.path, s.title, s.group)}
-                aria-label={s.title}
-                className={`absolute inset-0 text-left transition-opacity duration-500 ${i === slide ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-                style={{
-                  background:
-                    "radial-gradient(120% 120% at 100% 0%, hsl(var(--primary) / 0.38) 0%, transparent 55%), linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%)",
-                }}
-              >
-                <div className="absolute inset-0 bmb-grid opacity-70" />
-                <s.icon className="absolute -right-4 -bottom-6 w-40 h-40 sm:w-52 sm:h-52 text-primary/15" strokeWidth={1.2} />
-                <div className="absolute left-5 right-5 bottom-5">
-                  <p className="text-[11px] font-semibold tracking-[0.16em] uppercase text-primary mb-1">{s.group}</p>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold font-display">{s.title}</h2>
-                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">{s.sub}</p>
-                </div>
-              </button>
-            ))}
-            <div className="absolute top-3 right-3 flex gap-1.5">
-              <button
-                onClick={() => setSlide(s => (s - 1 + SLIDES.length) % SLIDES.length)}
-                className="grid place-items-center w-8 h-8 rounded-full bg-background/70 backdrop-blur border border-border hover:bg-background transition-colors"
-                aria-label="Previous"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setSlide(s => (s + 1) % SLIDES.length)}
-                className="grid place-items-center w-8 h-8 rounded-full bg-background/70 backdrop-blur border border-border hover:bg-background transition-colors"
-                aria-label="Next"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="absolute bottom-4 right-4 flex items-center gap-1.5" aria-hidden="true">
-              {SLIDES.map((s, i) => (
-                <span
-                  key={s.title}
-                  className={`h-1.5 rounded-full transition-all ${i === slide ? "w-5 bg-foreground" : "w-1.5 bg-foreground/30"}`}
-                />
-              ))}
-            </div>
-            <span className="sr-only">{current.title}</span>
-          </section>
 
           {/* quick actions */}
           <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
