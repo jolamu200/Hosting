@@ -4,7 +4,7 @@ import { useCurrency } from "@/hooks/useCurrency";
 import { useToast } from "@/hooks/useToast";
 import { Modal } from "@/components/Modal";
 import { getPackages, getMobileChargeStatus, initiatePayment, verifyPayment, initiatePaymentNg, getPaymentsConfig } from "@/lib/api";
-import { ArrowLeft, Coins, Loader2, Check, Minus, Plus, Copy, CheckCheck, Wallet } from "lucide-react";
+import { Coins, Loader2, Check, Minus, Plus, Copy, CheckCheck, Wallet } from "lucide-react";
 import { tx, countryForCurrency, getMoneyCurrency } from "@/lib/money";
 
 interface Package {
@@ -1244,6 +1244,13 @@ function OtherCountryPaymentModal({
 }
 
 
+const COUNTRY_OPTIONS: { id: "kenya" | "nigeria" | "tanzania" | "other"; flag: string; name: string; currency: string; how: string }[] = [
+  { id: "kenya", flag: "🇰🇪", name: "Kenya", currency: "KES", how: "Pay with M-Pesa, Airtel Money or Card. Prices are in KES." },
+  { id: "nigeria", flag: "🇳🇬", name: "Nigeria", currency: "NGN", how: "Pay with Card, bank transfer or USSD through Paystack. Prices are in NGN." },
+  { id: "tanzania", flag: "🇹🇿", name: "Tanzania", currency: "TZS", how: "Pay with Tigo Pesa, Airtel Money, Vodacom M-Pesa (TZ) and other Tanzanian mobile networks. Prices are in TZS." },
+  { id: "other", flag: "🌍", name: "Other Countries", currency: "USD", how: "Card and Apple Pay are accepted worldwide, no local payment method needed. Prices are in USD. Apple Pay works on Apple devices using Safari." },
+];
+
 export interface TopUpFlowProps {
   requiredTx?: number;
   onSuccess?: () => void;
@@ -1301,6 +1308,28 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
           </div>
         )}
 
+        {country !== null && (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">Choose your country to see its packages and payment methods.</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {COUNTRY_OPTIONS.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => setCountry(c.id)}
+                  className={`flex flex-col items-center gap-1 rounded-xl border px-3 py-3 text-center transition-colors ${country === c.id ? "border-primary bg-primary/10" : "border-border bg-card/50 hover:bg-muted/50"}`}
+                >
+                  <span className="text-2xl">{c.flag}</span>
+                  <span className="text-sm font-semibold leading-tight">{c.name}</span>
+                  <span className="text-[11px] text-muted-foreground">{c.currency}</span>
+                </button>
+              ))}
+            </div>
+            <div className="p-3.5 rounded-xl border border-border bg-muted/30 text-sm text-muted-foreground">
+              {COUNTRY_OPTIONS.find(c => c.id === country)?.how}
+            </div>
+          </div>
+        )}
+
         {country === null ? (
           <div className="space-y-4">
             <div className="text-center mb-6">
@@ -1350,20 +1379,10 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
           </div>
         ) : country === "other" ? (
           <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <button onClick={() => setCountry(null)} className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-                <ArrowLeft className="w-3.5 h-3.5" /> Change country
-              </button>
-              <span className="text-muted-foreground">·</span>
-              <span className="text-sm font-medium">🌍 Other Countries</span>
-            </div>
             {pkgLoading ? (
               <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>
             ) : (
               <div className="space-y-6">
-                <div className="p-4 rounded-xl border border-blue-500/20 bg-blue-500/5 text-sm text-blue-300">
-                  Card &amp; Apple Pay are accepted worldwide — no local payment methods needed.
-                </div>
                 <div className="grid gap-3">
                   {packages.map(pkg => {
                     return (
@@ -1397,16 +1416,6 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
           </div>
         ) : country === "tanzania" ? (
           <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <button onClick={() => setCountry(null)} className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-                <ArrowLeft className="w-3.5 h-3.5" /> Change country
-              </button>
-              <span className="text-muted-foreground">·</span>
-              <span className="text-sm font-medium">🇹🇿 Tanzania (TZS)</span>
-            </div>
-            <div className="p-4 rounded-xl border border-sky-500/20 bg-sky-500/5 text-sm text-sky-300">
-              Supports Tigo Pesa, Airtel Money, Vodacom M-Pesa (TZ), and more Tanzania mobile networks.
-            </div>
             <div className="grid gap-3">
               {TANZANIA_PACKAGES.map(pkg => {
                 return (
@@ -1438,13 +1447,6 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
           </div>
         ) : country === "nigeria" ? (
           <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <button onClick={() => setCountry(null)} className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-                <ArrowLeft className="w-3.5 h-3.5" /> Change country
-              </button>
-              <span className="text-muted-foreground">·</span>
-              <span className="text-sm font-medium">🇳🇬 Nigeria (NGN)</span>
-            </div>
             <div className="grid gap-3">
               {NIGERIA_PACKAGES.map(pkg => {
                 return (
@@ -1476,13 +1478,6 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <button onClick={() => setCountry(null)} className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-                <ArrowLeft className="w-3.5 h-3.5" /> Change country
-              </button>
-              <span className="text-muted-foreground">·</span>
-              <span className="text-sm font-medium">🇰🇪 Kenya (KES)</span>
-            </div>
             {pkgLoading ? (
               <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-teal-400" /></div>
             ) : (
