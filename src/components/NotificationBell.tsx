@@ -59,6 +59,13 @@ export function NotificationBell() {
     return () => clearInterval(interval);
   }, [user, fetchNotifications]);
 
+  // "View All" in the top banner asks the bell to open
+  useEffect(() => {
+    const onOpen = () => { fetchNotifications(); setOpen(true); };
+    window.addEventListener("open-notifications", onOpen);
+    return () => window.removeEventListener("open-notifications", onOpen);
+  }, [fetchNotifications]);
+
   useEffect(() => {
     if (!open) return undefined;
     lockScroll();
