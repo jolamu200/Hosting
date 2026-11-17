@@ -6,6 +6,9 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import authRouter from "./routes/auth.js";
+import profileRouter from "./routes/profile.js";
+import mediaRouter from "./routes/media.js";
+import chatRouter from "./routes/chat.js";
 import botRouter from "./routes/bots.js";
 import paymentsRouter, { paystackWebhookHandler, ablinerWebhookHandler } from "./routes/payments.js";
 import adminRouter from "./routes/admin.js";
@@ -102,6 +105,7 @@ app.post("/webhook/abliner", ablinerWebhookHandler);
 // Public maintenance status (bypass maintenance check)
 // (applied before the maintenance middleware below)
 app.use("/api/auth", authRouter);
+app.use("/api/auth", profileRouter);
 
 // ── Server-side maintenance mode enforcement ───────────────────────────────
 // Only block /api/* calls — the React SPA must always load so its own
@@ -137,6 +141,8 @@ app.use("/api/bots", botRouter);
 app.use("/api/payments", paymentsRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/coupons", couponRouter);
+app.use("/api/media", mediaRouter);
+app.use("/api/chat", chatRouter);
 
 // Public maintenance status endpoint (no auth required)
 app.get("/api/settings/maintenance", async (_req, res) => {
