@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useCurrency } from "@/hooks/useCurrency";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,9 +13,10 @@ import { TechBackground } from "@/components/TechBackground";
 import { lockScroll, unlockScroll } from "@/lib/scrollLock";
 import {
   ArrowLeft, UserCircle, Mail, Coins, LogOut,
-  Shield, Copy, Check, Pencil, X, Palette, Trash2, AlertTriangle, Globe
+  Shield, Copy, Check, Pencil, X, Palette, Trash2, AlertTriangle, Globe, Camera, Loader2
 } from "lucide-react";
 import { tx } from "@/lib/money";
+import { userAvatar, prepareAvatar, uploadAvatar, removeAvatar, IMAGE_TYPES, AVATAR_MAX } from "@/lib/chat";
 
 type AccentColor = "violet" | "red" | "blue" | "green" | "orange" | "pink" | "teal" | "yellow" | "rose" | "indigo" | "cyan" | "amber";
 
@@ -78,6 +79,8 @@ export function Profile() {
   const [themePickerOpen, setThemePickerOpen] = useState(false);
   const [deleteAccountModalOpen, setDeleteAccountModalOpen] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login");
@@ -143,9 +146,43 @@ export function Profile() {
     }
   };
 
+  const handleAvatarPick = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!IMAGE_TYPES.includes(file.type)) { showToast("Choose a JPEG, PNG or WebP image", "error"); return; }
+    setUploadingAvatar(true);
+    try {
+      let blob: Blob = file;
+      try { blob = await prepareAvatar(file); } catch { /* fall back to the original file */ }
+      if (blob.size > AVATAR_MAX) { showToast("Image is too large (max 2 MB)", "error"); return; }
+      await uploadAvatar(blob);
+      showToast("Profile photo updated!", "success");
+      await refreshUser();
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to upload photo", "error");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    setUploadingAvatar(true);
+    try {
+      await removeAvatar();
+      showToast("Profile photo removed", "success");
+      await refreshUser();
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to remove photo", "error");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   if (authLoading) return <PageLoader />;
   if (!user) return <PageLoader />;
 
+  const avatarUrl = userAvatar(user);
   const referralUrl = `${window.location.origin}/signup?ref=${user.referralCode || ""}`;
   const currentAccent = ACCENT_OPTIONS.find(a => a.key === accent) || ACCENT_OPTIONS[0];
 
@@ -169,8 +206,36 @@ export function Profile() {
 
       <div className="max-w-xl mx-auto px-4 py-6 space-y-4 relative z-[1]">
         <div className="rounded-xl bg-card border border-border p-6 flex flex-col items-center gap-4">
-          <div className="w-20 h-20 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center">
-            <UserCircle className="w-10 h-10 text-teal-400" />
+          <div className="flex flex-col items-center gap-2">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full overflow-hidden bg-teal-500/10 border border-teal-500/20 flex items-center justify-center">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Profile photo" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                ) : (
+                  <UserCircle className="w-12 h-12 text-teal-400" />
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="absolute -bottom-1 -right-1 grid place-items-center w-9 h-9 rounded-full bg-primary text-primary-foreground border-2 border-card shadow disabled:opacity-60"
+                aria-label="Change profile photo"
+              >
+                {uploadingAvatar ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+              </button>
+              <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleAvatarPick} />
+            </div>
+            {avatarUrl && (
+              <button
+                type="button"
+                onClick={handleRemoveAvatar}
+                disabled={uploadingAvatar}
+                className="text-xs text-muted-foreground hover:text-red-400 transition-colors disabled:opacity-60"
+              >
+                Remove photo
+              </button>
+            )}
           </div>
 
           {editingUsername ? (
