@@ -17,13 +17,14 @@ import {
   AlertTriangle, Menu, X, LayoutDashboard, BookOpen, UserCircle, CreditCard,
   MessageCircle, MessageSquare, ArrowRight, Moon, Sun, Server,
   Youtube, TrendingUp, Code2, Search, LayoutGrid, Trash2, HelpCircle,
-  Radio,
+  Radio, Smartphone,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import { TechBackground } from "@/components/TechBackground";
 import { AppLogoIcon } from "@/components/AppLogo";
 import { tx } from "@/lib/money";
 import { userAvatar } from "@/lib/chat";
+import { TopBanners } from "@/components/TopBanners";
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                              */
@@ -106,14 +107,16 @@ function NavRow({
   label: string;
   active?: boolean;
   onClick: () => void;
-  tone?: "default" | "amber";
+  tone?: "default" | "amber" | "primary";
 }) {
   const base = "w-full flex items-center gap-3 h-11 px-4 rounded-xl border text-sm transition-colors text-left";
   const style = active
     ? "bg-foreground text-background border-transparent font-semibold"
     : tone === "amber"
       ? "border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/15"
-      : "border-border/60 bg-muted/30 text-foreground/85 hover:bg-muted/70";
+      : tone === "primary"
+        ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
+        : "border-border/60 bg-muted/30 text-foreground/85 hover:bg-muted/70";
   return (
     <button onClick={onClick} className={`${base} ${style}`}>
       <Icon className="w-4 h-4 shrink-0" />
@@ -509,12 +512,18 @@ export function Dashboard() {
             <LogOut className="w-4 h-4" />
             Sign Out
           </button>
+          <div className="mt-3">
+            <NavRow icon={Smartphone} label="Install App" tone="primary" onClick={() => go("/get-app", "Install App", "App")} />
+          </div>
         </div>
       </aside>
 
       {/* ---------------- Main ---------------- */}
       <main className="relative z-[1] px-3 sm:px-5 lg:pl-[19.5rem] lg:pr-6 pt-6 pb-28 lg:pb-12">
         <div className="mx-auto max-w-5xl space-y-6">
+
+          {/* top notifications + install app */}
+          <TopBanners onInstall={() => go("/get-app", "Install App", "App")} />
 
           {/* quick actions */}
           <section className="grid grid-cols-2 lg:grid-cols-4 gap-3">
