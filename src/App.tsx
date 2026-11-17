@@ -25,6 +25,7 @@ import { NotFound } from "@/pages/NotFound";
 import { PageLoader } from "@/components/PageLoader";
 import Home from "@/pages/Home";
 import { Community } from "@/pages/Community";
+import { GetApp } from "@/pages/GetApp";
 import { BotFeatures } from "@/pages/BotFeatures";
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { Wrench } from "lucide-react";
@@ -106,6 +107,7 @@ function AppRoutes() {
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
         <Route path="/topup" element={<ProtectedRoute><TopUp /></ProtectedRoute>} />
+        <Route path="/get-app" element={<GetApp />} />
         <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/deploy" element={<ProtectedRoute><Deploy /></ProtectedRoute>} />
