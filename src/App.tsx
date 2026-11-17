@@ -24,7 +24,7 @@ import { Contact } from "@/pages/Contact";
 import { NotFound } from "@/pages/NotFound";
 import { PageLoader } from "@/components/PageLoader";
 import Home from "@/pages/Home";
-import { Calculator } from "@/pages/Calculator";
+import { Community } from "@/pages/Community";
 import { BotFeatures } from "@/pages/BotFeatures";
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { Wrench } from "lucide-react";
@@ -101,12 +101,12 @@ function AppRoutes() {
         <Route path="/docs" element={<Docs />} />
         <Route path="/tutorials" element={<Tutorials />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/calculator" element={<Calculator />} />
         <Route path="/services/bots" element={<ServicesBots />} />
         <Route path="/services/bots/:slug" element={<BotDeployPage />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
         <Route path="/topup" element={<ProtectedRoute><TopUp /></ProtectedRoute>} />
+        <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/deploy" element={<ProtectedRoute><Deploy /></ProtectedRoute>} />
         <Route path="/mybots" element={<ProtectedRoute><MyBots /></ProtectedRoute>} />
