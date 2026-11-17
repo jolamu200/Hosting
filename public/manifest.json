@@ -11,14 +11,17 @@
   "icons": [
     {
       "type": "image/png",
-      "src": "/favicon-512.png",
-      "sizes": "512x512",
-      "purpose": "any maskable"
+      "src": "/favicon-192.png",
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
       "type": "image/png",
-      "src": "/favicon-192.png",
-      "sizes": "192x192"
+      "src": "/favicon-512.png",
+      "sizes": "512x512",
+      "purpose": "any"
     }
-  ]
+  ],
+  "id": "/",
+  "scope": "/"
 }
