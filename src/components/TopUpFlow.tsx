@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/useToast";
 import { Modal } from "@/components/Modal";
 import { getPackages, getMobileChargeStatus, initiatePayment, verifyPayment, initiatePaymentNg, getPaymentsConfig } from "@/lib/api";
 import { Coins, Loader2, Check, Minus, Plus, Copy, CheckCheck, Wallet } from "lucide-react";
-import { tx, countryForCurrency, getMoneyCurrency } from "@/lib/money";
+import { tx, countryForCurrency } from "@/lib/money";
 
 interface Package {
   _id: string;
@@ -1269,7 +1269,7 @@ export function TopUpFlow({ requiredTx, onSuccess, compact = false }: TopUpFlowP
   const [ngModalOpen, setNgModalOpen] = useState(false);
   const [customModalOpen, setCustomModalOpen] = useState(false);
   const [otherMethodModalOpen, setOtherMethodModalOpen] = useState(false);
-  const [country, setCountry] = useState<"kenya" | "nigeria" | "tanzania" | "other" | null>(() => countryForCurrency(getMoneyCurrency()));
+  const [country, setCountry] = useState<"kenya" | "nigeria" | "tanzania" | "other" | null>(() => countryForCurrency(currency));
   const [_nigeriaAvailable, setNigeriaAvailable] = useState(false);
   const [tzModalOpen, setTzModalOpen] = useState(false);
   const [selectedTzPkg, setSelectedTzPkg] = useState<TanzaniaPackage | null>(null);
