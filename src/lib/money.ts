@@ -81,6 +81,11 @@ const REGION_CURRENCY: Record<string, string> = {
 export function detectCurrency(): string {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+    // Some Tanzanian phones report the Nairobi time zone: trust a Tanzanian language region (e.g. sw-TZ) first.
+    if (tz === "Africa/Nairobi" || tz === "Africa/Dar_es_Salaam") {
+      const regions = (navigator.languages || [navigator.language]).map(l => (l.split("-")[1] || "").toUpperCase());
+      if (regions.includes("TZ")) return "TZS";
+    }
     if (TZ_CURRENCY[tz]) return TZ_CURRENCY[tz];
     if (tz.startsWith("Europe/")) return "EUR";
   } catch { /* ignore */ }
