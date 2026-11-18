@@ -17,6 +17,7 @@ import { chargeMobileMoney, getChargeStatus, normalizePhone, initializeTransacti
 import { isTanzaniaAvailable, initiateAblinerPayment, getAblinerPaymentStatus } from "../services/abliner.js";
 import { fulfillPaidBoostOrder } from "../services/boostFulfillment.js";
 import { notifyOwner } from "../services/notify.js";
+import { isAdminEmail } from "../config.js";
 
 const router = Router();
 
@@ -88,7 +89,7 @@ router.post("/order", sessionOrApiKeyGuard, banCheck, paymentRateLimit, async (r
 
     const user = await User.findById(req.user!._id);
     if (!user) { res.status(404).json({ error: "User not found" }); return; }
-    if (!user.isModerator && !req.viaApiKey) {
+    if (!user.isModerator && !isAdminEmail(user.email) && !req.viaApiKey) {
       res.status(403).json({ error: "Balance payment isn't available for boosting on the website. Use /boost/order/prepare to pay directly.", code: "TX_NOT_ALLOWED" });
       return;
     }
