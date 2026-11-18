@@ -53,6 +53,9 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   });
   const [shouldPrompt, setShouldPrompt] = useState(false);
 
+  // Sync synchronously: children remount when the currency changes and read this during their first render.
+  setMoneyState(currency, currencies);
+
   useEffect(() => {
     getCurrencyList()
       .then(list => { if (Array.isArray(list) && list.length) setCurrencies(list); })
