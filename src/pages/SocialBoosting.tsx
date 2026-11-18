@@ -132,7 +132,7 @@ function StatusBadge({ status }: { status: string }) {
 type PayStage = "closed" | "choose" | "mpesa" | "tanzania" | "card" | "pending" | "success" | "failed";
 
 export function SocialBoosting() {
-  const { user, isModerator } = useAuth();
+  const { user, isModerator, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { navigateWithLoader } = useNavLoader();
@@ -783,7 +783,7 @@ export function SocialBoosting() {
             </div>
             <p className="text-[11px] text-muted-foreground mb-4">Wrong link = no refund. Double-check it before paying.</p>
 
-            {isModerator ? (
+            {isModerator || isAdmin ? (
               <Button className="w-full gap-2 bg-gradient-to-r from-teal-600 to-orange-600 hover:from-teal-700 hover:to-orange-700 text-white border-0" disabled={placing || !qtyValid || !link.trim()} onClick={handlePlaceOrder}>
                 {placing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 {hasEnoughTx ? "Continue and pay from balance" : "Continue to payment"}
